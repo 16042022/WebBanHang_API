@@ -13,7 +13,7 @@ using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 using WebBanHang.Infrastructre.Models;
 
-namespace WebBanHang.Domain.Services.Authorization
+namespace WebBanHang.Infrastructre.Security
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class AuthorizeAttribute : Attribute, Microsoft.AspNetCore.Mvc.Filters.IAuthorizationFilter
@@ -27,7 +27,7 @@ namespace WebBanHang.Domain.Services.Authorization
         public void OnAuthorization(AuthorizationFilterContext filterContext)
         {
             // skip authorization if action is decorated with [AllowAnonymous] attribute
-            bool annoymousUser = filterContext.ActionDescriptor.EndpointMetadata.OfType<AllowAnoymousAtt>().Any();
+            bool annoymousUser = filterContext.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
             if (annoymousUser) return;
 
             // authorization

@@ -1,16 +1,34 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.UseCase.Users_Admin;
+using WebBanHang.Infrastructre.Models;
 using WebBanHang.Infrastructre.Security;
+using ZstdSharp;
 
 namespace WebBanHang.Infrastructre.User_Admin
 {
     public class UserManagement : IUserInfor
     {
+        private AppDbContext dbContext;
+
+        public UserManagement(AppDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+
+        public async Task<User> checkLogInInfor(LogInModel logIn)
+        {
+            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.Email == logIn.Email
+            && PasswordManagement.IsValidPassword(logIn.Password, x.Password));
+            return check ?? throw new InvalidDataException("User is not valid");
+        }
+
         public User FromCustomerInfo(Customer entity)
         {
             User fromCustomer = new User()
@@ -23,6 +41,11 @@ namespace WebBanHang.Infrastructre.User_Admin
                 Password = entity.Password,
             };
             return fromCustomer;
+        }
+
+        public async Task<Customer> FromUserToCustomer(User entity)
+        {
+            return await dbContext.Customers.FirstAsync(x => x.UserID == entity.Id);
         }
 
         public string GenerateRefreshPwdToken()

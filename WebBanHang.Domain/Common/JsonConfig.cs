@@ -16,5 +16,6 @@ namespace WebBanHang.Domain.Common
             get {  return SecurityKey; }
             private set { SecurityKey = Environment.GetEnvironmentVariable("SecretKey")!; }
         }
+        public int RefreshTokenTTL { get; set; }
     }
 }

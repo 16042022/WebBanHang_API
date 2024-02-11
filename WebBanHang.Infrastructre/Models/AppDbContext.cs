@@ -33,5 +33,15 @@ namespace WebBanHang.Infrastructre.Models
         {
             optionsBuilder.UseMySQL(_connectionString);
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().OwnsMany(p => p.RefreshTokens,
+                a =>
+                {
+                    a.WithOwner().HasForeignKey("UserID");
+                    a.Property<int>("Id");
+                    a.HasKey(p => p.ID);
+                });
+        }
     }
 }

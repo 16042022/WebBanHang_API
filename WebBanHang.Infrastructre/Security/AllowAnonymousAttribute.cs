@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebBanHang.Domain.Services.Authorization
+namespace WebBanHang.Infrastructre.Security
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class AllowAnoymousAtt : Attribute
+    public class AllowAnonymousAttribute : Attribute
     {
     }
 }

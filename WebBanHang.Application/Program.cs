@@ -27,26 +27,6 @@ namespace WebBanHang.Application
             builder.Services.AddOptions();
             var JwtConfig = builder.Configuration.GetSection("JWTConfig");
             builder.Services.Configure<JsonConfig>(JwtConfig);
-            // Config authenication by JWT here:
-            builder.Services.AddAuthentication(cfg =>
-            {
-                cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(o =>
-            {
-                var Key = JwtConfig.Key;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = JwtConfig.GetSection("Issuer").ToString(),
-                    ValidAudience = JwtConfig.GetSection("Audience").ToString(),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
-                };
-            });
 
             var app = builder.Build();
             var userRepo = app.Services.GetService<IRepository<User>>();
