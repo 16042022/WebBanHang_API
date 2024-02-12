@@ -10,6 +10,7 @@ using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 using WebBanHang.Domain.UseCase.Users_Admin;
 using customAuth = WebBanHang.Infrastructre.Security;
+using WebBanHang.Domain.UseCase.Others;
 
 namespace WebBanHang.Application.Controllers
 {
@@ -18,20 +19,14 @@ namespace WebBanHang.Application.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IRepository<User> userRepo;
-        private readonly IRepository<Customer> customerRepo;
-        private readonly IAuthenication authenication;
+        private IUserSerrvice userSerrvice;
         private JsonConfig config;
-        private readonly IUserInfor userInfo;
         private readonly IMapper _mapper;
-        public UserController(IRepository<User> userRepo, IAuthenication _authenicateModel
-            , IOptions<JsonConfig> _config, IUserInfor userInfo, IRepository<Customer> customerRepo, IMapper mappingSource)
+        public UserController( IOptions<JsonConfig> _config, IMapper mappingSource,
+            IUserSerrvice serrvice)
         {
-            this.userRepo = userRepo;
-            this.authenication = _authenicateModel;
+            userSerrvice = serrvice;
             config = _config.Value;
-            this.userInfo = userInfo;
-            this.customerRepo = customerRepo;
             _mapper = mappingSource;
         }
 
@@ -41,9 +36,23 @@ namespace WebBanHang.Application.Controllers
         public async Task<IActionResult> Authenicate(LogInModel logIn)
         {
             // Input: LogInModel -> email + password
+            var respone = await userSerrvice.Authenticate(logIn, IpAdress(), config);
+            SetTokenCookie(respone.JWTRefreshToken!);
             // Output: + A JWT access token (contain basic user infor)
                      // + A HttpOnly Cookie contain refresh Token
-            return Ok();
+            return Ok(respone);
+        }
+
+        private void SetTokenCookie(string jWTRefreshToken)
+        {
+            Response.Cookies.Append("refreshToken", jWTRefreshToken);
+        }
+
+        private string IpAdress()
+        {
+            if (Request.Headers.TryGetValue("X-Forwarded-For", out Microsoft.Extensions.Primitives.StringValues value))
+                return value!;
+            else return HttpContext.Connection.RemoteIpAddress!.MapToIPv4().ToString();
         }
 
         [customAuth.AllowAnonymous]
@@ -55,7 +64,14 @@ namespace WebBanHang.Application.Controllers
             Output: + A new JWT access token
                     + A HttpOnly Cookie contain a NEW refresh token (using Refresh Token Rotate)
              */
-            return Ok();
+            string? refreshToken;
+            if (Request.Cookies.TryGetValue("refreshToken", out refreshToken))
+            {
+                var identity = await userSerrvice.RefreshToken(refreshToken, IpAdress());
+                SetTokenCookie(identity.JWTRefreshToken!);
+                return Ok(identity);
+            }
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [customAuth.Authorize(UserRole.Employee, UserRole.Customer)]

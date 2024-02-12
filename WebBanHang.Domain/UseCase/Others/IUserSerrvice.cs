@@ -13,7 +13,7 @@ namespace WebBanHang.Domain.UseCase.Others
     {
         Task<AuthenicationRespone> Authenticate(LogInModel model, string ipAddress, JsonConfig config);
         Task<AuthenicationRespone> RefreshToken(string token, string ipAddress);
-        void RevokeToken(string token, string ipAddress);
+        Task RevokeToken(string token, string ipAddress);
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
     }

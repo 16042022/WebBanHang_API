@@ -45,7 +45,7 @@ namespace WebBanHang.Domain.Services
             AuthenicationRespone respone = new AuthenicationRespone()
             {
                 JWTAccessToken = AccessToken,
-                JWTRefreshToken = RefreshToken,
+                JWTRefreshToken = RefreshToken.Token,
                 FirstName = relativeCustomer.FirstName,
                 LastName = relativeCustomer.LastName
             };
@@ -66,12 +66,80 @@ namespace WebBanHang.Domain.Services
 
         public async Task<AuthenicationRespone> RefreshToken(string token, string ipAddress)
         {
-            throw new NotImplementedException();
+            // From given token => get user => get the status of refresh token
+            User customer = await userInfor.GetUserFromRefreshToken(token);
+            Customer relativeCustomer = await userInfor.FromUserToCustomer(customer);
+            var refreshToken = customer.RefreshTokens.Single(x => x.Token == token);
+            // Check:
+            if (refreshToken.IsRevoked)
+            {
+                // Remove all decendant tokens
+                await RemoveChildRefreshToken(refreshToken, customer, 
+                    ipAddress, $"Attempted reuse of revoked ancestor token: {token}");
+                await userRepo.Update(customer);
+            }
+            if (refreshToken.IsExpired && refreshToken.IsRevoked) throw new InvalidDataException("Token is not valid");
+            var rotateToken = RotateRefreshToken(refreshToken, ipAddress);
+            customer.RefreshTokens.Add(rotateToken);
+            var AccessToken = authenication.GenerateToken(config, customer);
+            // Remove old token if any
+            removeOldRefreshToken(customer, config);
+            // Save the object
+            await userRepo.Update(customer);
+            AuthenicationRespone respone = new AuthenicationRespone()
+            {
+                JWTAccessToken = AccessToken,
+                JWTRefreshToken = rotateToken.Token,
+                FirstName = relativeCustomer.FirstName,
+                LastName = relativeCustomer.LastName
+            };
+            return respone;
         }
 
-        public void RevokeToken(string token, string ipAddress)
+        private RefreshToken RotateRefreshToken(RefreshToken refreshToken, string ipAddress)
         {
-            throw new NotImplementedException();
+            var newRefreshToken = authenication.GenerateRefreshToken(ipAddress);
+            // Revoked the old one
+            RevokeRefreshToken(refreshToken, ipAddress, "Replaced by new token", newRefreshToken.Token);
+            return newRefreshToken;
+        }
+
+        private async Task RemoveChildRefreshToken(RefreshToken refreshToken, User customer, string ipAddress, string v)
+        {
+            var childToken = customer.RefreshTokens.FirstOrDefault(x => x.ReplacedByToken == refreshToken.Token);
+            if (childToken != null)
+            {
+                do
+                {
+                    if (childToken.IsExpired && childToken.IsRevoked)
+                    {
+                        RevokeRefreshToken(childToken, ipAddress, v);
+                        await userRepo.Update(customer);
+                    }
+                    childToken = customer.RefreshTokens.FirstOrDefault(x => x.ReplacedByToken == childToken.Token);
+                    if (childToken == null) break;
+                } while (!childToken.IsExpired && !childToken.IsRevoked);
+            }
+        }
+
+        public async Task RevokeToken(string token, string ipAddress)
+        {
+            // From given token => get user => get the status of refresh token
+            User customer = await userInfor.GetUserFromRefreshToken(token);
+            var refreshToken = customer.RefreshTokens.Single(x => x.Token == token);
+            if (refreshToken.IsExpired && refreshToken.IsRevoked)
+                throw new InvalidDataException("Token is already not actived");
+            RevokeRefreshToken(refreshToken, ipAddress, "Revoked without replacement");
+            await userRepo.Update(customer);
+        }
+
+        private void RevokeRefreshToken(RefreshToken refreshToken, string ipAddress,
+            string reason = null, string replacedByToken = null)
+        {
+            refreshToken.Revoked = DateTime.Now;
+            refreshToken.ReasonRevoked = reason;
+            refreshToken.RevokedByIp = ipAddress;
+            refreshToken.ReplacedByToken = replacedByToken;
         }
 
         public Task<IEnumerable<User>> GetAll()

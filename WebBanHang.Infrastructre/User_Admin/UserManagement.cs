@@ -53,6 +53,13 @@ namespace WebBanHang.Infrastructre.User_Admin
             throw new NotImplementedException();
         }
 
+        public async Task<User> GetUserFromRefreshToken(string refreshToken)
+        {
+            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.RefreshTokens.Any(x => x.Token == refreshToken));
+            if (check == null) throw new InvalidDataException("Invalid refresh token");
+            return check;
+        }
+
         public bool IsValidPassword(string inPwd, string dbPwd)
         {
             return PasswordManagement.IsValidPassword(inPwd, dbPwd);

@@ -14,6 +14,6 @@ namespace WebBanHang.Domain.Common
         public string LastName { get; set; } = "";
         public string Email { get; set; } = "";
         [JsonIgnore]
-        public RefreshToken? JWTRefreshToken { get; set; }
+        public string? JWTRefreshToken { get; set; }
     }
 }

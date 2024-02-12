@@ -15,6 +15,7 @@ namespace WebBanHang.Domain.UseCase.Users_Admin
         public string GenerateRefreshPwdToken();
         public Task<User> checkLogInInfor(LogInModel logIn);
         public Task<Customer> FromUserToCustomer (User entity);
+        public Task<User> GetUserFromRefreshToken(string refreshToken);
         // Group of user picture upload & management
     }
 }

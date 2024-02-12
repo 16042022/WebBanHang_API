@@ -4,6 +4,8 @@ using System.Xml.Serialization;
 using WebBanHang.Domain;
 using WebBanHang.Domain.Common;
 using WebBanHang.Domain.Entities;
+using WebBanHang.Domain.Services;
+using WebBanHang.Domain.UseCase.Others;
 using WebBanHang.Domain.UseCase.Users_Admin;
 using WebBanHang.Infrastructre.Models;
 using WebBanHang.Infrastructre.Products;
@@ -39,7 +41,7 @@ namespace WebBanHang.Application.ConfigExtension
             services.AddScoped<IUserInfor, UserManagement>();
             services.AddTransient<IAuthenication, AuthenicationProvider>();
             services.AddSingleton<IEmailSender, EmailSender>();
-            
+            services.AddScoped<IUserSerrvice, UserService>();
             return services;
         }
     }
