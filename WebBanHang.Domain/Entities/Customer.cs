@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Common;
 
@@ -28,5 +29,7 @@ namespace WebBanHang.Domain.Entities
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
         public int UserID { get; set; }
+        [JsonIgnore]
+        public User? user { get; set; }
     }
 }

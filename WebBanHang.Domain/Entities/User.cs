@@ -23,12 +23,18 @@ namespace WebBanHang.Domain.Entities
         [RegularExpression(@"^((?=.*[a-z])(?=.*[A-Z])(?=.*\d)).+$")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
-        [JsonIgnore]
         [Required]
         public string Status { get; set; } = "";
         [Required]
         public int RoleID { get; set; }
         [JsonIgnore]
         public IList<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        [JsonIgnore]
+        public Customer? Customer { get; set; }
+        public string? VerifyToken { get; set; } = "";
+        public DateTime? VerifyDate { get; set; }
+        public bool IsVerifed => VerifyDate.HasValue || ResetPwdExpires.HasValue;
+        public DateTime? ResetPwdExpires { get; set; }
+        public string? ResetPwdToken { get; set; } = "";
     }
 }

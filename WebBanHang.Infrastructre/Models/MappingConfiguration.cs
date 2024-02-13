@@ -13,7 +13,7 @@ namespace WebBanHang.Infrastructre.Models
     {
         public MappingConfiguration() 
         {
-            CreateMap<UserRegisterModel, User>().AfterMap((src, dest) => dest.CreateAt = DateTime.Now);
+            CreateMap<UserRegisterModel, Customer>().AfterMap((src, dest) => dest.CreateAt = DateTime.Now);
         }
     }
 }

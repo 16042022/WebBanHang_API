@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,11 @@ namespace WebBanHang.Infrastructre.Models
                     a.Property<int>("Id");
                     a.HasKey(p => p.ID);
                 });
+            modelBuilder.Entity<Customer>()
+                .HasOne(p => p.user)
+                .WithOne(u => u.Customer)
+                .HasForeignKey<User>(fk => fk.Id)
+                .IsRequired();
         }
     }
 }

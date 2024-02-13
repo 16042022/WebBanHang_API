@@ -40,7 +40,7 @@ namespace WebBanHang.Infrastructre.Security
             string getUniqueToken()
             {
                 // token is a cryptographically strong random sequence of values
-                var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+                var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
                 // Check
                 bool isUnique = dbContext.user.Any(op => op.RefreshTokens.Any(utk => utk.Token == token));
                 if (!isUnique)

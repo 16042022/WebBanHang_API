@@ -42,3 +42,6 @@ CREATE TABLE mydb.refresh_token
 		ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
+ALTER TABLE mydb.user
+ADD COLUMN (VerifyToken varchar(500), VerifyDate datetime, IsVerify bool);
+

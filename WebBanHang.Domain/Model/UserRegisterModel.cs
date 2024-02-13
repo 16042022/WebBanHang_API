@@ -12,7 +12,10 @@ namespace WebBanHang.Domain.DTO
     {
         [Required]
         [MaxLength(20)]
-        public string UserName { get; set; } = "";
+        public string FirstName { get; set; } = "";
+        [Required]
+        [MaxLength(20)]
+        public string LastName { get; set; } = "";
         [Required]
         [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [RegularExpression(@"^((?=.*[a-z])(?=.*[A-Z])(?=.*\d)).+$")]

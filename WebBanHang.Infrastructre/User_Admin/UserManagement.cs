@@ -29,6 +29,11 @@ namespace WebBanHang.Infrastructre.User_Admin
             return check ?? throw new InvalidDataException("User is not valid");
         }
 
+        public bool CheckVerifyToken(string verifyToken)
+        {
+            return dbContext.user.Any(x => x.VerifyToken == verifyToken);
+        }
+
         public User FromCustomerInfo(Customer entity)
         {
             User fromCustomer = new User()
@@ -48,7 +53,7 @@ namespace WebBanHang.Infrastructre.User_Admin
             return await dbContext.Customers.FirstAsync(x => x.UserID == entity.Id);
         }
 
-        public string GenerateRefreshPwdToken()
+        public Task<User> GetUserByResetToken(string resetToken)
         {
             throw new NotImplementedException();
         }
@@ -63,6 +68,18 @@ namespace WebBanHang.Infrastructre.User_Admin
         public bool IsValidPassword(string inPwd, string dbPwd)
         {
             return PasswordManagement.IsValidPassword(inPwd, dbPwd);
+        }
+
+        public async Task ValidationVerifyToken(string verifyToken)
+        {
+            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.VerifyToken == verifyToken);
+            if (check == null) throw new InvalidDataException("This verify token is not valid");
+            else
+            {
+                check.VerifyDate = DateTime.Now;
+                check.VerifyToken = null;
+                dbContext.Update(check); await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

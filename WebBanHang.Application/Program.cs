@@ -28,6 +28,9 @@ namespace WebBanHang.Application
             var JwtConfig = builder.Configuration.GetSection("JWTConfig");
             builder.Services.Configure<JsonConfig>(JwtConfig);
 
+            var MailPort = builder.Configuration.GetSection("MailConfig");
+            builder.Services.Configure<MailPortSetting>(MailPort);
+
             var app = builder.Build();
             var userRepo = app.Services.GetService<IRepository<User>>();
             var authenProvider = app.Services.GetService<IAuthenication>();

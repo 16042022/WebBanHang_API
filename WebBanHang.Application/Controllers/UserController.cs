@@ -11,6 +11,7 @@ using WebBanHang.Domain.Enums;
 using WebBanHang.Domain.UseCase.Users_Admin;
 using customAuth = WebBanHang.Infrastructre.Security;
 using WebBanHang.Domain.UseCase.Others;
+using WebBanHang.Domain.Model;
 
 namespace WebBanHang.Application.Controllers
 {
@@ -76,18 +77,24 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.Authorize(UserRole.Employee, UserRole.Customer)]
         [HttpPost("revoke-token")]
-        public async Task<IActionResult> RevokeToken()
+        public async Task<IActionResult> RevokeToken([FromBody]string token)
         {
             /*
              Input: A refresh token inside coookie | request body (mainly: request body if both exists)
             Output: Revoke this token
              */
-            return Ok();
+            var refreshToken = token ??= Request.Cookies["refreshToken"]!;
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await userSerrvice.RevokeToken(refreshToken, IpAdress());
+                return Ok();
+            }
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [customAuth.AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> FirstRegister (Customer user)
+        public async Task<IActionResult> FirstRegister (UserRegisterModel model)
         {
             /*
              Input: account registation detail (name, mail, password...)
@@ -95,21 +102,23 @@ namespace WebBanHang.Application.Controllers
                     - a verification email is sent to the email address of the account
             (acc must be verificated before authenication/ authorization
              */
+            await userSerrvice.Register(model, Request.Headers["origin"]!);
             return Ok();
         }
 
         [customAuth.AllowAnonymous]
         [HttpPost("verifying-email")]
-        public async Task<IActionResult> VerifyingAccount()
+        public async Task<IActionResult> VerifyingAccount([FromBody] string token)
         {
             // Input: Request body containing verifying token
             // Output: the account is verified
+            await userSerrvice.VerifyEmail(token);
             return Ok();
         }
 
         [customAuth.AllowAnonymous]
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPasswordSecure()
+        public async Task<IActionResult> ForgotPasswordSecure([FromBody] string email)
         {
             /*
              Input: Request contain acc emial in request body
@@ -121,7 +130,7 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.AllowAnonymous]
         [HttpPost("validate-reset-token")]
-        public async Task<IActionResult> ToValidateResetToken()
+        public async Task<IActionResult> ToValidateResetToken([FromBody] string token)
         {
             /*
              Input: Request contain reset token (in request body)
@@ -132,10 +141,10 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.AllowAnonymous]
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword()
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest model)
         {
             /*
-             Input: A POST request contain password, new password & reset token
+             Input: A POST request contain new password, confirm password & reset token
             Output: - Password is reseted
                     - Reset token is deleted
              */
@@ -150,7 +159,8 @@ namespace WebBanHang.Application.Controllers
              Input: GET request
             Output: List of all account in system
              */
-            return Ok();
+            var listUser = await userSerrvice.GetAll();
+            return Ok(listUser);
         }
 
         [customAuth.Authorize(UserRole.Employee)]
@@ -158,12 +168,13 @@ namespace WebBanHang.Application.Controllers
         public async Task<IActionResult> GetCustomerAccount()
         {
             // Output: List of all customer acc in system
-            return Ok();
+            var customerList = await userSerrvice.GetAllCustomer();
+            return Ok(customerList);
         }
 
         [customAuth.Authorize(UserRole.Customer)]
         [HttpGet("CustomerID")]
-        public async Task<IActionResult> RetriveIndividualCUstomerAcc([FromHeader] int CusID)
+        public async Task<IActionResult> RetriveIndividualCustomerAcc([FromHeader] int CusID)
         {
             // Retrive only information for specific customer
             return Ok();
