@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
+using WebBanHang.Domain.Model;
 using WebBanHang.Domain.UseCase.Users_Admin;
 using WebBanHang.Infrastructre.Models;
 using WebBanHang.Infrastructre.Security;
@@ -29,40 +30,38 @@ namespace WebBanHang.Infrastructre.User_Admin
             return check ?? throw new InvalidDataException("User is not valid");
         }
 
-        public bool CheckVerifyToken(string verifyToken)
+        public async Task<User> GetUserByResetToken(string resetToken)
         {
-            return dbContext.user.Any(x => x.VerifyToken == verifyToken);
-        }
-
-        public User FromCustomerInfo(Customer entity)
-        {
-            User fromCustomer = new User()
-            {
-                Email = entity.Email,
-                UserName = entity.Email.Split("@")[0],
-                Status = "Active",
-                RoleID = 3,
-                CreateAt = DateTime.Now,
-                Password = entity.Password,
-            };
-            return fromCustomer;
-        }
-
-        public async Task<Customer> FromUserToCustomer(User entity)
-        {
-            return await dbContext.Customers.FirstAsync(x => x.UserID == entity.Id);
-        }
-
-        public Task<User> GetUserByResetToken(string resetToken)
-        {
-            throw new NotImplementedException();
+            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.ResetPwdToken == resetToken)
+                ?? throw new AggregateException("This reset pwd token is not link to any account");
+            return check;
         }
 
         public async Task<User> GetUserFromRefreshToken(string refreshToken)
         {
-            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.RefreshTokens.Any(x => x.Token == refreshToken));
-            if (check == null) throw new InvalidDataException("Invalid refresh token");
+            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.RefreshTokens.Any(x => x.Token == refreshToken)) 
+                ?? throw new AggregateException("This refresh pwd token is not link to any account");
             return check;
+        }
+
+        public string HassPassword(string inPwd)
+        {
+            return PasswordManagement.HashPassword(inPwd);
+        }
+
+        public bool IsUniqueRefreshToken(string refreshToken)
+        {
+            return dbContext.user.Any(x => x.RefreshTokens.Any(x => x.Token == refreshToken));
+        }
+
+        public bool IsUniqueResetToken(string resetToken)
+        {
+            return dbContext.user.Any(x => x.ResetPwdToken == resetToken);
+        }
+
+        public bool IsUniqueVerifyToken(string verifyToken)
+        {
+            return dbContext.user.Any(x => x.VerifyToken == verifyToken);
         }
 
         public bool IsValidPassword(string inPwd, string dbPwd)
@@ -70,15 +69,16 @@ namespace WebBanHang.Infrastructre.User_Admin
             return PasswordManagement.IsValidPassword(inPwd, dbPwd);
         }
 
-        public async Task ValidationVerifyToken(string verifyToken)
+        public async Task<User> ValidationVerifyToken(string verifyToken)
         {
             User? check = await dbContext.user.FirstOrDefaultAsync(x => x.VerifyToken == verifyToken);
-            if (check == null) throw new InvalidDataException("This verify token is not valid");
+            if (check == null) throw new AggregateException("This verify pwd token is not link to any account");
             else
             {
                 check.VerifyDate = DateTime.Now;
                 check.VerifyToken = null;
                 dbContext.Update(check); await dbContext.SaveChangesAsync();
+                return check;
             }
         }
     }

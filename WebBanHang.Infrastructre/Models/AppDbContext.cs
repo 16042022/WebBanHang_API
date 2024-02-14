@@ -12,7 +12,6 @@ namespace WebBanHang.Infrastructre.Models
     public class AppDbContext : DbContext
     {
         private readonly string _connectionString = "";
-        public DbSet<Customer> Customers { get; set; }
         public DbSet<User> user { get; set; }
         public DbSet<Order> orders { get; set; }
         public DbSet<OrderDetail> order_detail { get; set; }
@@ -40,14 +39,9 @@ namespace WebBanHang.Infrastructre.Models
                 a =>
                 {
                     a.WithOwner().HasForeignKey("UserID");
-                    a.Property<int>("Id");
+                    a.Property<int>("ID");
                     a.HasKey(p => p.ID);
                 });
-            modelBuilder.Entity<Customer>()
-                .HasOne(p => p.user)
-                .WithOne(u => u.Customer)
-                .HasForeignKey<User>(fk => fk.Id)
-                .IsRequired();
         }
     }
 }

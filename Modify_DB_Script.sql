@@ -44,4 +44,34 @@ CREATE TABLE mydb.refresh_token
 
 ALTER TABLE mydb.user
 ADD COLUMN (VerifyToken varchar(500), VerifyDate datetime, IsVerify bool);
+/*
+Delete Customer entity, combine Customer -> User entity
+*/
 
+/*Delete link of Customer entity to other table*/
+ALTER TABLE mydb.orders
+DROP FOREIGN KEY fk_Orders_Customers1;
+ALTER TABLE mydb.orders
+DROP COLUMN CustomerID;
+
+ALTER TABLE mydb.reviewhub
+DROP FOREIGN KEY fk_ReviewHub_Customers1;
+ALTER TABLE mydb.reviewhub
+DROP COLUMN Customers_CustomerID;
+
+-- Delete Customer entity
+DROP TABLE mydb.customers;
+-- Add Customer field into User entity
+ALTER TABLE mydb.user
+ADD COLUMN (firstName varchar(50), lastName varchar(50), phoneNo varchar(50));
+-- Add back forgein key 
+ALTER TABLE mydb.orders
+ADD COLUMN UserID int not null after PaymentID;
+ALTER TABLE mydb.orders
+ADD FOREIGN KEY fk_orders_UserID (UserID) REFERENCES mydb.user(ID)
+ON UPDATE CASCADE ON DELETE NO ACTION;
+ALTER TABLE mydb.reviewhub
+ADD COLUMN UserID int not null;
+ALTER TABLE mydb.reviewhub
+ADD FOREIGN KEY fk_reviewhub_UserID (UserID) REFERENCES mydb.user(ID)
+ON UPDATE CASCADE ON DELETE NO ACTION;

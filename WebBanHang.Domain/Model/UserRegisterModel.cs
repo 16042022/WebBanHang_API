@@ -22,7 +22,15 @@ namespace WebBanHang.Domain.DTO
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
         [Required]
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; } = "";
+        [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = "";
+        [Required]
+        [DataType(DataType.PhoneNumber)]
+        public string PhoneNo { get; set; } = "";
+        [Range(typeof(bool), "true", "true")]
+        public bool AcceptTerms { get; set; }
     }
 }

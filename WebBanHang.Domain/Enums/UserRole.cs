@@ -8,8 +8,8 @@ namespace WebBanHang.Domain.Enums
 {
     public enum UserRole
     {
-        Admin,
-        Employee,
-        Customer
+        Admin = 1,
+        Employee = 2,
+        Customer = 3
     }
 }

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using orinAuth = Microsoft.AspNetCore.Authorization;
+﻿using orinAuth = Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -22,13 +21,11 @@ namespace WebBanHang.Application.Controllers
     {
         private IUserSerrvice userSerrvice;
         private JsonConfig config;
-        private readonly IMapper _mapper;
-        public UserController( IOptions<JsonConfig> _config, IMapper mappingSource,
+        public UserController( IOptions<JsonConfig> _config,
             IUserSerrvice serrvice)
         {
             userSerrvice = serrvice;
             config = _config.Value;
-            _mapper = mappingSource;
         }
 
         // Cac API su dung cho quan ly tai khoan
@@ -46,7 +43,12 @@ namespace WebBanHang.Application.Controllers
 
         private void SetTokenCookie(string jWTRefreshToken)
         {
-            Response.Cookies.Append("refreshToken", jWTRefreshToken);
+            var CookieOption = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+            };
+            Response.Cookies.Append("refreshToken", jWTRefreshToken, CookieOption);
         }
 
         private string IpAdress()
@@ -94,7 +96,8 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> FirstRegister (UserRegisterModel model)
+        public async Task<IActionResult> FirstRegister ([FromBody]UserRegisterModel model, 
+            [FromQuery]bool isEmployee)
         {
             /*
              Input: account registation detail (name, mail, password...)
@@ -102,8 +105,8 @@ namespace WebBanHang.Application.Controllers
                     - a verification email is sent to the email address of the account
             (acc must be verificated before authenication/ authorization
              */
-            await userSerrvice.Register(model, Request.Headers["origin"]!);
-            return Ok();
+            await userSerrvice.Register(model, Request.Headers["origin"]!, isEmployee);
+            return Ok(new { message = "Please check your email for register instructions" });
         }
 
         [customAuth.AllowAnonymous]
@@ -125,7 +128,8 @@ namespace WebBanHang.Application.Controllers
             Output: a password reset email is sent to the email address of the account
             (The email contains a single use reset token that is valid for one day.)
              */
-            return Ok();
+            await userSerrvice.ForgotPasswordProcess(email, Request.Headers["origin"]!);
+            return Ok(new {message = "Please check your email for password reset instructions" });
         }
 
         [customAuth.AllowAnonymous]
@@ -136,70 +140,57 @@ namespace WebBanHang.Application.Controllers
              Input: Request contain reset token (in request body)
             Output: A message is returned to indicate if the token is valid or not.
              */
-            return Ok();
+            await userSerrvice.ValidateReseToken(token);
+            return Ok(new { message = "Token is valid"});
         }
 
         [customAuth.AllowAnonymous]
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordRequest model)
+        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordRequest model)
         {
             /*
              Input: A POST request contain new password, confirm password & reset token
+            (Process by FE side)
             Output: - Password is reseted
                     - Reset token is deleted
              */
-            return Ok();
+            await userSerrvice.ResetPasswordProcess(model);
+            return Ok(new {message = "Password reset successful, you can now login"});
         }
 
         [customAuth.Authorize(UserRole.Admin)]
         [HttpGet("AllAccounts")]
-        public async Task<IActionResult> GetAllAccount()
+        public async Task<IActionResult> GetAllAccount([FromQuery] bool isCustomer)
         {
             /*
              Input: GET request
             Output: List of all account in system
              */
-            var listUser = await userSerrvice.GetAll();
+            var listUser = await userSerrvice.GetAll(isCustomer);
             return Ok(listUser);
         }
 
         [customAuth.Authorize(UserRole.Employee)]
         [HttpGet("CustomerAccounts")]
-        public async Task<IActionResult> GetCustomerAccount()
+        public async Task<ActionResult<AccountRespone>> GetCustomerAccount([FromQuery] bool isCustomer)
         {
             // Output: List of all customer acc in system
-            var customerList = await userSerrvice.GetAllCustomer();
+            var customerList = await userSerrvice.GetAll(isCustomer);
             return Ok(customerList);
-        }
-
-        [customAuth.Authorize(UserRole.Customer)]
-        [HttpGet("CustomerID")]
-        public async Task<IActionResult> RetriveIndividualCustomerAcc([FromHeader] int CusID)
-        {
-            // Retrive only information for specific customer
-            return Ok();
         }
 
         [customAuth.Authorize(UserRole.Admin)]
         [HttpGet("AnyID")]
-        public async Task<IActionResult> GetIDInformation([FromHeader] int ID)
+        public async Task<ActionResult<AccountRespone>> GetIDInformation([FromHeader] int ID)
         {
             // retrive any acc infor relative to this ID
-            return Ok();
-        }
-
-        [customAuth.Authorize(UserRole.Employee)]
-        [HttpPost("CustomerAcc")]
-        public async Task<IActionResult> AddCustomerAcc([FromBody] Customer cus)
-        {
-            // Input: Customer acc detail
-            // Output:  the account is created and automatically verified. (Acc is automatically marked as Customer role)
-            return Ok();
+            var result = await userSerrvice.GetById(ID);
+            return Ok(result);
         }
 
         [customAuth.Authorize(UserRole.Admin)]
         [HttpPost("AnyAcc")]
-        public async Task<IActionResult> AddAccount([FromBody] Customer cus)
+        public async Task<IActionResult> AddAccount([FromBody] CreateRequest cus)
         {
             // Input : A specific infor about the acc
             // Output: the account is created and automatically verified. 
@@ -208,7 +199,7 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.Authorize(UserRole.Admin)]
         [HttpPut("AnyAcc")]
-        public async Task<IActionResult> EditAccounts([FromBody] User _user)
+        public async Task<IActionResult> EditAccounts([FromBody] EditAccountRequest request)
         {
             // Input: data of specific acc need to update
             // Output: the updated acc in DB

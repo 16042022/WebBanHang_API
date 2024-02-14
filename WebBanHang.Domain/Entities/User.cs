@@ -29,12 +29,19 @@ namespace WebBanHang.Domain.Entities
         public int RoleID { get; set; }
         [JsonIgnore]
         public IList<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
-        [JsonIgnore]
-        public Customer? Customer { get; set; }
         public string? VerifyToken { get; set; } = "";
         public DateTime? VerifyDate { get; set; }
         public bool IsVerifed => VerifyDate.HasValue || ResetPwdExpires.HasValue;
         public DateTime? ResetPwdExpires { get; set; }
         public string? ResetPwdToken { get; set; } = "";
+        [Required]
+        [MaxLength(10)]
+        public string FirstName { get; set; } = "";
+        [Required]
+        [DataType(DataType.Text)]
+        public string LastName { get; set; } = "";
+        [Required]
+        [DataType(DataType.PhoneNumber)]
+        public string PhoneNo { get; set; } = "";
     }
 }

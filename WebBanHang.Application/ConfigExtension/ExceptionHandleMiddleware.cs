@@ -30,6 +30,9 @@ namespace WebBanHang.Application.ConfigExtension
                     case InvalidOperationException e:
                         respone.StatusCode = (int)HttpStatusCode.NotExtended;
                         break;
+                    case ArgumentOutOfRangeException e:
+                        respone.StatusCode = (int)HttpStatusCode.NotFound;
+                        break;
                     default:
                         respone.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;

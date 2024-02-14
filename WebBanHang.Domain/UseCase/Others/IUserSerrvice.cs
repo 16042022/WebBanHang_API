@@ -15,13 +15,15 @@ namespace WebBanHang.Domain.UseCase.Others
         Task<AuthenicationRespone> Authenticate(LogInModel model, string ipAddress, JsonConfig config);
         Task<AuthenicationRespone> RefreshToken(string token, string ipAddress);
         Task RevokeToken(string token, string ipAddress);
-        Task<IEnumerable<User>> GetAll();
-        Task<IEnumerable<Customer>> GetAllCustomer();
-        Task<User> GetById(int id);
-        Task Register(UserRegisterModel model, string origin);
+        Task<IEnumerable<AccountRespone>> GetAll(bool isCustomer);
+        Task<AccountRespone> GetById(int id);
+        Task Register(UserRegisterModel model, string origin, bool isEmployee);
         Task VerifyEmail(string requestToken);
-        Task ForgotPasswordProcess(string email);
-        Task<bool> ValidateReseToken(string requestToken);
+        Task ForgotPasswordProcess(string email, string origin);
+        Task<User> ValidateReseToken(string requestToken);
         Task ResetPasswordProcess(ResetPasswordRequest resetModel);
+        Task<AccountRespone> CreateAccount(CreateRequest model);
+        Task<AccountRespone> UpdateAccount(EditAccountRequest editAccountRequest);
+        Task DeleteAccount(int AccID);
     }
 }

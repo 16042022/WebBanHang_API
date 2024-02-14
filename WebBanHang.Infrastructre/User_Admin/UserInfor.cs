@@ -35,20 +35,16 @@ namespace WebBanHang.Infrastructre.User_Admin
         {
             if (entity != null && IsValidValue(entity))
             {
-                if (!dbContext.user.Any(x => x.Email == entity.Email))
+                try
                 {
-                    try
-                    {
-                        entity.Password = PasswordManagement.HashPassword(entity.Password);
-                        dbContext.user.Add(entity);
-                        await dbContext.SaveChangesAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new AggregateException(ex);
-                    }
+                    entity.Password = PasswordManagement.HashPassword(entity.Password);
+                    dbContext.user.Add(entity);
+                    await dbContext.SaveChangesAsync();
                 }
-                else throw new InvalidOperationException("This user have same email as stored user, check again");
+                catch (Exception ex)
+                {
+                    throw new AggregateException(ex);
+                }
             }
             else throw new InvalidDataException("Invalid input");
         }
@@ -64,25 +60,21 @@ namespace WebBanHang.Infrastructre.User_Admin
                 {
                     if (entity != null && IsValidValue(entity))
                     {
-                        if (!dbContext.Customers.Any(x => x.Email == entity!.Email))
+                        try
                         {
-                            try
+                            entity.Password = PasswordManagement.HashPassword(entity!.Password);
+                            dbContext.user.Add(entity);
+                            ++batch;
+                            if (batch == count)
                             {
-                                entity.Password = PasswordManagement.HashPassword(entity!.Password);
-                                dbContext.user.Add(entity);
-                                ++batch;
-                                if (batch == count)
-                                {
-                                    await dbContext.SaveChangesAsync();
-                                    batch = 0;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new AggregateException(ex);
+                                await dbContext.SaveChangesAsync();
+                                batch = 0;
                             }
                         }
-                        else throw new InvalidOperationException("This user have same email as stored user, check again");
+                        catch (Exception ex)
+                        {
+                            throw new AggregateException(ex);
+                        }
                     }
                     else throw new InvalidDataException("Input is not valid");
                 }
