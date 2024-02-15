@@ -1,5 +1,4 @@
-﻿using orinAuth = Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using WebBanHang.Domain;
@@ -14,7 +13,7 @@ using WebBanHang.Domain.Model;
 
 namespace WebBanHang.Application.Controllers
 {
-    [orinAuth.Authorize]
+    [customAuth.Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : BaseController
@@ -88,7 +87,7 @@ namespace WebBanHang.Application.Controllers
             if (string.IsNullOrEmpty(refreshToken))
                 return BadRequest(new { message = "Token is required" });
 
-            if (!User.OwnedToken(token) && User.RoleID != (int)UserRole.Admin)
+            if (!_User.OwnedToken(token) && _User.RoleID != (int)UserRole.Admin)
                 return Unauthorized(new { meesage = "Authorize is required" });
 
             await userSerrvice.RevokeToken(token, IpAdress());
@@ -204,9 +203,9 @@ namespace WebBanHang.Application.Controllers
         {
             // Input: data of specific acc need to update
             // Output: the updated acc in DB (Only Admin can change Role, other exclusive)
-            if (User.Id != ID && User.RoleID != (int)UserRole.Admin) return Unauthorized(new { message = "Invalid user identity" });
+            if (_User.Id != ID && _User.RoleID != (int)UserRole.Admin) return Unauthorized(new { message = "Invalid user identity" });
             if (request == null) return BadRequest(new { message = "None of object to be updated" });
-            if (User.RoleID != (int)UserRole.Admin) request.Role = "";
+            if (_User.RoleID != (int)UserRole.Admin) request.Role = "";
 
             var result = await userSerrvice.UpdateAccount(ID, request);
             return Ok(result);
@@ -217,7 +216,7 @@ namespace WebBanHang.Application.Controllers
         {
             // The specific acc relative to this ID is deleted
             // only admin can delete any acc, employee & customer can't delete themself
-            if (ID != User.Id || User.RoleID != (int)UserRole.Admin)
+            if (ID != _User.Id || _User.RoleID != (int)UserRole.Admin)
                 return Unauthorized(new { message = "Unauthorize" });
             await userSerrvice.DeleteAccount(ID);
             return Ok();

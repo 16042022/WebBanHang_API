@@ -16,13 +16,13 @@ namespace WebBanHang.Application
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
             // Add services to the container.
-            builder.Services.ConfigDependencyGroup();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.ConfigDependencyGroup();
 
             builder.Services.AddOptions();
             var JwtConfig = builder.Configuration.GetSection("JWTConfig");
@@ -32,8 +32,6 @@ namespace WebBanHang.Application
             builder.Services.Configure<MailPortSetting>(MailPort);
 
             var app = builder.Build();
-            var userRepo = app.Services.GetService<IRepository<Users>>();
-            var authenProvider = app.Services.GetService<IAuthenication>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -45,7 +43,7 @@ namespace WebBanHang.Application
             // Config other security feature ...
             // Add an endpoint so that accept the refresh token feature...
             app.DetectExceptionMiddleware();
-            app.UseJWTMiddleware(userRepo!, authenProvider!);
+            app.UseJWTMiddleware();
 
             app.MapControllers();
 

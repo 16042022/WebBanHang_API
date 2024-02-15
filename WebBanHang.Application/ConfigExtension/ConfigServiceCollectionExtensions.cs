@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using WebBanHang.Domain;
@@ -19,7 +20,8 @@ namespace WebBanHang.Application.ConfigExtension
     {
         public static IServiceCollection ConfigDependencyGroup(this IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>();
+            var key = Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey");
+            services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(key!));
             services.AddControllers().AddJsonOptions(x =>
             {
                 // serialize enums as strings in api responses (e.g. Role)
@@ -35,12 +37,11 @@ namespace WebBanHang.Application.ConfigExtension
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             // Other config
-            services.AddScoped<IRepository<Customer>, CustomerInfor>();
-            services.AddScoped<IRepository<Users>, UserInfor>();
-            services.AddScoped(typeof(IRepository<>), typeof(TransactionRepository<>));
-            services.AddScoped<IUserInfor, UserManagement>();
+            services.AddTransient<IRepository<Users>, UserInfor>();
+            services.AddTransient(typeof(IRepository<>), typeof(TransactionRepository<>));
+            services.AddTransient<IUserInfor, UserManagement>();
             services.AddTransient<IAuthenication, AuthenicationProvider>();
-            services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IUserSerrvice, UserService>();
             return services;
         }

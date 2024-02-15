@@ -9,20 +9,14 @@ namespace WebBanHang.Application.ConfigExtension
     public class AuthorizationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IRepository<Users> _userRepository;
-        private readonly IAuthenication authenication;
-        private readonly JsonConfig config;
 
-        public AuthorizationMiddleware(RequestDelegate requestDelegate, IRepository<Users> userRepository, 
-            IAuthenication authenication, IOptions<JsonConfig> options)
+        public AuthorizationMiddleware(RequestDelegate requestDelegate)
         {
             _next = requestDelegate;
-            _userRepository = userRepository;
-            this.authenication = authenication;
-            this.config = options.Value;
         }
 
-        public async Task Invoke(HttpContext context) 
+        public async Task Invoke(HttpContext context, IRepository<Users> _userRepository,
+            IAuthenication authenication, JsonConfig config) 
         {
             // Retrive the access token
             string token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last()!;
@@ -38,9 +32,9 @@ namespace WebBanHang.Application.ConfigExtension
 
     public static class JWTMiddleware
     {
-        public static IApplicationBuilder UseJWTMiddleware(this IApplicationBuilder app, IRepository<Users> userRepo, IAuthenication authenRepo)
+        public static IApplicationBuilder UseJWTMiddleware(this IApplicationBuilder app)
         {
-            return app.UseMiddleware<AuthorizationMiddleware>(userRepo, authenRepo);
+            return app.UseMiddleware<AuthorizationMiddleware>();
         }
     } 
 }

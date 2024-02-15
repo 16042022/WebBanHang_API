@@ -8,6 +8,6 @@ namespace WebBanHang.Application.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
-        public Users User => (Users)HttpContext.Items["User"]!;
+        public Users _User => (Users)HttpContext.Items["User"]!;
     }
 }
