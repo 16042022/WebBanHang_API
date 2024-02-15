@@ -13,7 +13,7 @@ namespace WebBanHang.Domain.UseCase.Users_Admin
     {
         public RefreshToken GenerateRefreshToken(string ipAddress);
         // Generate Toekn => tra ve client
-        public string GenerateToken(JsonConfig config, User users);
+        public string GenerateToken(JsonConfig config, Users users);
         // RefreshToken => lay lai accessToken
         public string ValidateJwtToken(string Token, JsonConfig config);
     }

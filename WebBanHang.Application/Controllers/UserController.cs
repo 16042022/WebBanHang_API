@@ -17,7 +17,7 @@ namespace WebBanHang.Application.Controllers
     [orinAuth.Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private IUserSerrvice userSerrvice;
         private JsonConfig config;
@@ -77,7 +77,6 @@ namespace WebBanHang.Application.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        [customAuth.Authorize(UserRole.Employee, UserRole.Customer)]
         [HttpPost("revoke-token")]
         public async Task<IActionResult> RevokeToken([FromBody]string token)
         {
@@ -86,12 +85,14 @@ namespace WebBanHang.Application.Controllers
             Output: Revoke this token
              */
             var refreshToken = token ??= Request.Cookies["refreshToken"]!;
-            if (!string.IsNullOrWhiteSpace(refreshToken))
-            {
-                await userSerrvice.RevokeToken(refreshToken, IpAdress());
-                return Ok();
-            }
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            if (string.IsNullOrEmpty(refreshToken))
+                return BadRequest(new { message = "Token is required" });
+
+            if (!User.OwnedToken(token) && User.RoleID != (int)UserRole.Admin)
+                return Unauthorized(new { meesage = "Authorize is required" });
+
+            await userSerrvice.RevokeToken(token, IpAdress());
+            return Ok(new { message = "Token is revoked" });
         }
 
         [customAuth.AllowAnonymous]
@@ -190,27 +191,35 @@ namespace WebBanHang.Application.Controllers
 
         [customAuth.Authorize(UserRole.Admin)]
         [HttpPost("AnyAcc")]
-        public async Task<IActionResult> AddAccount([FromBody] CreateRequest cus)
+        public async Task<ActionResult<AccountRespone>> AddAccount([FromBody] CreateRequest cus)
         {
             // Input : A specific infor about the acc
             // Output: the account is created and automatically verified. 
-            return Ok();
+            var result = await userSerrvice.CreateAccount(cus);
+            return Ok(result);
         }
 
-        [customAuth.Authorize(UserRole.Admin)]
         [HttpPut("AnyAcc")]
-        public async Task<IActionResult> EditAccounts([FromBody] EditAccountRequest request)
+        public async Task<IActionResult> EditAccounts(int ID, [FromBody] EditAccountRequest request)
         {
             // Input: data of specific acc need to update
-            // Output: the updated acc in DB
-            return Ok();
+            // Output: the updated acc in DB (Only Admin can change Role, other exclusive)
+            if (User.Id != ID && User.RoleID != (int)UserRole.Admin) return Unauthorized(new { message = "Invalid user identity" });
+            if (request == null) return BadRequest(new { message = "None of object to be updated" });
+            if (User.RoleID != (int)UserRole.Admin) request.Role = "";
+
+            var result = await userSerrvice.UpdateAccount(ID, request);
+            return Ok(result);
         }
 
-        [customAuth.Authorize(UserRole.Admin)]
         [HttpDelete("id")]
         public async Task<IActionResult> DeleteAccount([FromQuery] int ID)
         {
             // The specific acc relative to this ID is deleted
+            // only admin can delete any acc, employee & customer can't delete themself
+            if (ID != User.Id || User.RoleID != (int)UserRole.Admin)
+                return Unauthorized(new { message = "Unauthorize" });
+            await userSerrvice.DeleteAccount(ID);
             return Ok();
         }
     }

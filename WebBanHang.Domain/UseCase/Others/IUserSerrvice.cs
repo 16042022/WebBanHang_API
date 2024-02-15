@@ -20,10 +20,10 @@ namespace WebBanHang.Domain.UseCase.Others
         Task Register(UserRegisterModel model, string origin, bool isEmployee);
         Task VerifyEmail(string requestToken);
         Task ForgotPasswordProcess(string email, string origin);
-        Task<User> ValidateReseToken(string requestToken);
+        Task<Users> ValidateReseToken(string requestToken);
         Task ResetPasswordProcess(ResetPasswordRequest resetModel);
         Task<AccountRespone> CreateAccount(CreateRequest model);
-        Task<AccountRespone> UpdateAccount(EditAccountRequest editAccountRequest);
+        Task<AccountRespone> UpdateAccount(int ID, EditAccountRequest editAccountRequest);
         Task DeleteAccount(int AccID);
     }
 }

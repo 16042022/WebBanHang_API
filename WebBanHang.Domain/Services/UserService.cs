@@ -23,12 +23,12 @@ namespace WebBanHang.Domain.Services
         private readonly IAuthenication authenication;
         private readonly IUserInfor userInfor;
         private readonly JsonConfig config;
-        private readonly IRepository<User> userRepo;
+        private readonly IRepository<Users> userRepo;
         private readonly IMapper _mapper;
         private readonly IEmailSender emailSender;
 
         public UserService(IAuthenication authenication, IUserInfor infor, 
-            IOptions<JsonConfig> config, IRepository<User> repository, IMapper mapper, IEmailSender emailSender)
+            IOptions<JsonConfig> config, IRepository<Users> repository, IMapper mapper, IEmailSender emailSender)
         {
             this.authenication = authenication;
             this.userInfor = infor;
@@ -42,7 +42,7 @@ namespace WebBanHang.Domain.Services
 
         public async Task<AuthenicationRespone> Authenticate(LogInModel model, string ipAddress, JsonConfig config)
         {
-            User check = await userInfor.checkLogInInfor(model);
+            Users check = await userInfor.checkLogInInfor(model);
             // Generate some token
             var AccessToken = authenication.GenerateToken(config, check);
             var RefreshToken = authenication.GenerateRefreshToken(ipAddress);
@@ -60,7 +60,7 @@ namespace WebBanHang.Domain.Services
             return respone;
         }
 
-        private void removeOldRefreshToken(User check, JsonConfig config)
+        private void removeOldRefreshToken(Users check, JsonConfig config)
         {
             // Xoa het cac refresh token cu neu con
             var tokenList = check.RefreshTokens.Where(x =>
@@ -75,7 +75,7 @@ namespace WebBanHang.Domain.Services
         public async Task<AuthenicationRespone> RefreshToken(string token, string ipAddress)
         {
             // From given token => get user => get the status of refresh token
-            User customer = await userInfor.GetUserFromRefreshToken(token);
+            Users customer = await userInfor.GetUserFromRefreshToken(token);
             var refreshToken = customer.RefreshTokens.Single(x => x.Token == token);
             // Check:
             if (refreshToken.IsRevoked)
@@ -111,7 +111,7 @@ namespace WebBanHang.Domain.Services
             return newRefreshToken;
         }
 
-        private async Task RemoveChildRefreshToken(RefreshToken refreshToken, User customer, string ipAddress, string v)
+        private async Task RemoveChildRefreshToken(RefreshToken refreshToken, Users customer, string ipAddress, string v)
         {
             var childToken = customer.RefreshTokens.FirstOrDefault(x => x.ReplacedByToken == refreshToken.Token);
             if (childToken != null)
@@ -132,7 +132,7 @@ namespace WebBanHang.Domain.Services
         public async Task RevokeToken(string token, string ipAddress)
         {
             // From given token => get user => get the status of refresh token
-            User customer = await userInfor.GetUserFromRefreshToken(token);
+            Users customer = await userInfor.GetUserFromRefreshToken(token);
             var refreshToken = customer.RefreshTokens.Single(x => x.Token == token);
             if (refreshToken.IsExpired && refreshToken.IsRevoked)
                 throw new InvalidDataException("Token is already not actived");
@@ -165,13 +165,13 @@ namespace WebBanHang.Domain.Services
 
         public async Task<AccountRespone> GetById(int id)
         {
-            User check = await userRepo.GetById(id);
+            Users check = await userRepo.GetById(id);
             return _mapper.Map<AccountRespone>(check);
         }
 
         public async Task Register(UserRegisterModel model, string origin, bool isEmployee)
         {
-            User? check = await userRepo.GetByName(model.Email);
+            Users? check = await userRepo.GetByName(model.Email);
             if (check != null)
             {
                 SendAlreadyRegisterEmail(model.Email, origin);
@@ -209,7 +209,7 @@ namespace WebBanHang.Domain.Services
             await emailSender.SendMail(context);
         }
 
-        private async void SendVerificationEmail(User check, string origin)
+        private async void SendVerificationEmail(Users check, string origin)
         {
             // Tao body message
             string message;
@@ -235,7 +235,7 @@ namespace WebBanHang.Domain.Services
             await emailSender.SendMail(context);
         }
 
-        private string GenerateVerifyToken(User check)
+        private string GenerateVerifyToken(Users check)
         {
             string token; bool isExistance;
             do
@@ -258,7 +258,7 @@ namespace WebBanHang.Domain.Services
             Output: a password reset email is sent to the email address of the account
             (The email contains a single use reset token that is valid for one day.)
              */
-            User? check = await userRepo.GetByName(email) ?? throw new InvalidDataException("Email account is not valid");
+            Users? check = await userRepo.GetByName(email) ?? throw new InvalidDataException("Email account is not valid");
             // Generate reset token
             check.ResetPwdToken = GenerateResetPwdToken(check);
             check.ResetPwdExpires = DateTime.Now.AddDays(1);
@@ -268,7 +268,7 @@ namespace WebBanHang.Domain.Services
             await SendVerifyResetPassword(check, email);
         }
 
-        private async Task SendVerifyResetPassword(User check, string origin)
+        private async Task SendVerifyResetPassword(Users check, string origin)
         {
             string message;
             // Create body respone
@@ -294,7 +294,7 @@ namespace WebBanHang.Domain.Services
             throw new NotImplementedException();
         }
 
-        private string GenerateResetPwdToken(User check)
+        private string GenerateResetPwdToken(Users check)
         {
             string token; bool isExistance;
             do
@@ -305,13 +305,13 @@ namespace WebBanHang.Domain.Services
             return token;
         }
 
-        public async Task<User> ValidateReseToken(string requestToken)
+        public async Task<Users> ValidateReseToken(string requestToken)
         {
             /*
                Input: Request contain reset token (in request body)
                Output: A message is returned to indicate if the token is valid or not.
             */
-            User? check = await userInfor.GetUserByResetToken(requestToken) ?? 
+            Users? check = await userInfor.GetUserByResetToken(requestToken) ?? 
                 throw new AggregateException("This token is not link to any account");
             // Check if this token is valid period
             if (DateTime.Now > check.ResetPwdExpires) 
@@ -321,7 +321,7 @@ namespace WebBanHang.Domain.Services
 
         public async Task ResetPasswordProcess(ResetPasswordRequest resetModel)
         {
-            User check = await ValidateReseToken(resetModel.Token);
+            Users check = await ValidateReseToken(resetModel.Token);
             // Change user's password
             check.Password = userInfor.HassPassword(resetModel.Password);
             check.ResetPwdToken = null; // Must del after use
@@ -331,23 +331,36 @@ namespace WebBanHang.Domain.Services
 
         public async Task<AccountRespone> CreateAccount(CreateRequest model)
         {
-            User? check = await userRepo.GetByName(model.Email);
+            Users? check = await userRepo.GetByName(model.Email);
             if (check != null) throw new AggregateException("This email acc is already exists");
             // Map from model to User
-            check = _mapper.Map<User>(model);
+            check = _mapper.Map<Users>(model);
             await userRepo.Add(check);
             // Map to result object
             return _mapper.Map<AccountRespone>(check);
         }
 
-        public Task<AccountRespone> UpdateAccount(EditAccountRequest editAccountRequest)
+        public async Task<AccountRespone> UpdateAccount(int ID, EditAccountRequest editAccountRequest)
         {
-            throw new NotImplementedException();
+            // Check this ID is valid
+            Users? check = await userRepo.GetById(ID);
+            if (check != null)
+            {
+                check = _mapper.Map<Users>(editAccountRequest);
+                await userRepo.Update(check);
+                return _mapper.Map<AccountRespone>(check);
+            } else throw new AggregateException($"Unable to update account: {ID}");
         }
 
-        public Task DeleteAccount(int AccID)
+        public async Task DeleteAccount(int AccID)
         {
-            throw new NotImplementedException();
+            // Check this ID is valid
+            Users? check = await userRepo.GetById(AccID);
+            if (check != null)
+            {
+                await userRepo.Delete(check.Id);
+            }
+            else throw new AggregateException($"Unable to detele account: {AccID}");
         }
     }
 }

@@ -51,7 +51,7 @@ namespace WebBanHang.Infrastructre.Security
             }
         }
 
-        public string GenerateToken(JsonConfig config, User users)
+        public string GenerateToken(JsonConfig config, Users users)
         {
             // Generate token:
             var tokenHandle = new JwtSecurityTokenHandler();

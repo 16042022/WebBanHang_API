@@ -12,7 +12,7 @@ namespace WebBanHang.Infrastructre.Models
     public class AppDbContext : DbContext
     {
         private readonly string _connectionString = "";
-        public DbSet<User> user { get; set; }
+        public DbSet<Users> user { get; set; }
         public DbSet<Order> orders { get; set; }
         public DbSet<OrderDetail> order_detail { get; set; }
         public DbSet<OrderStatus> order_status { get; set; }
@@ -35,7 +35,7 @@ namespace WebBanHang.Infrastructre.Models
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().OwnsMany(p => p.RefreshTokens,
+            modelBuilder.Entity<Users>().OwnsMany(p => p.RefreshTokens,
                 a =>
                 {
                     a.WithOwner().HasForeignKey("UserID");

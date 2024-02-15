@@ -32,7 +32,7 @@ namespace WebBanHang.Application
             builder.Services.Configure<MailPortSetting>(MailPort);
 
             var app = builder.Build();
-            var userRepo = app.Services.GetService<IRepository<User>>();
+            var userRepo = app.Services.GetService<IRepository<Users>>();
             var authenProvider = app.Services.GetService<IAuthenication>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

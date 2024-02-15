@@ -9,11 +9,11 @@ namespace WebBanHang.Application.ConfigExtension
     public class AuthorizationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Users> _userRepository;
         private readonly IAuthenication authenication;
         private readonly JsonConfig config;
 
-        public AuthorizationMiddleware(RequestDelegate requestDelegate, IRepository<User> userRepository, 
+        public AuthorizationMiddleware(RequestDelegate requestDelegate, IRepository<Users> userRepository, 
             IAuthenication authenication, IOptions<JsonConfig> options)
         {
             _next = requestDelegate;
@@ -38,7 +38,7 @@ namespace WebBanHang.Application.ConfigExtension
 
     public static class JWTMiddleware
     {
-        public static IApplicationBuilder UseJWTMiddleware(this IApplicationBuilder app, IRepository<User> userRepo, IAuthenication authenRepo)
+        public static IApplicationBuilder UseJWTMiddleware(this IApplicationBuilder app, IRepository<Users> userRepo, IAuthenication authenRepo)
         {
             return app.UseMiddleware<AuthorizationMiddleware>(userRepo, authenRepo);
         }

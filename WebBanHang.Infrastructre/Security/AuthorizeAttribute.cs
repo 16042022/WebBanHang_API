@@ -31,7 +31,7 @@ namespace WebBanHang.Infrastructre.Security
             if (annoymousUser) return;
 
             // authorization
-            var user = (User)filterContext.HttpContext.Items["User"];
+            var user = (Users)filterContext.HttpContext.Items["User"];
             var userRole = (UserRole)user.RoleID;
             if (user == null || (roles.Any() && !roles.Contains(userRole)))
             {

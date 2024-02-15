@@ -28,7 +28,7 @@ using WebBanHang.Infrastructre.User_Admin;
     CreateAt = DateTime.Now,
 };*/
 
-User test_user = new User()
+Users test_user = new Users()
 {
     UserName = "linhvu",
     Email = "linhvu@gmail.com",
@@ -40,5 +40,5 @@ User test_user = new User()
 
 string connection = Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey")!;
 // await new UserInfor(new AppDbContext(connection)).Add(test_user);
-User backRes = await new UserInfor(new AppDbContext(connection)).GetById(1);
+Users backRes = await new UserInfor(new AppDbContext(connection)).GetById(1);
 Console.WriteLine($"{backRes.UserName} - {backRes.CreateAt}");

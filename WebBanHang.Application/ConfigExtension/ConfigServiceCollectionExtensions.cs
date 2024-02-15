@@ -36,7 +36,7 @@ namespace WebBanHang.Application.ConfigExtension
             services.AddSingleton(mapper);
             // Other config
             services.AddScoped<IRepository<Customer>, CustomerInfor>();
-            services.AddScoped<IRepository<User>, UserInfor>();
+            services.AddScoped<IRepository<Users>, UserInfor>();
             services.AddScoped(typeof(IRepository<>), typeof(TransactionRepository<>));
             services.AddScoped<IUserInfor, UserManagement>();
             services.AddTransient<IAuthenication, AuthenicationProvider>();

@@ -12,13 +12,12 @@ using WebBanHang.Infrastructre.Security;
 
 namespace WebBanHang.Infrastructre.User_Admin
 {
-    public class UserInfor : IRepository<User>
+    public class UserInfor : IRepository<Users>
     {
         private AppDbContext dbContext;
         private int batch = 0;
-        private User? tempCus;
 
-        private static bool IsValidValue(User acc)
+        private static bool IsValidValue(Users acc)
         {
             ValidationContext context = new(acc);
             List<ValidationResult> results = new();
@@ -31,7 +30,7 @@ namespace WebBanHang.Infrastructre.User_Admin
             this.dbContext = connect;
         }
 
-        public async Task Add(User entity)
+        public async Task Add(Users entity)
         {
             if (entity != null && IsValidValue(entity))
             {
@@ -49,14 +48,14 @@ namespace WebBanHang.Infrastructre.User_Admin
             else throw new InvalidDataException("Invalid input");
         }
 
-        public async Task AddRange(IEnumerable<User> entities)
+        public async Task AddRange(IEnumerable<Users> entities)
         {
             int count = entities.Count();
             if (count == 0) throw new InvalidDataException("List entity have no element");
             else if (count == 1) await Add(entities.ToList()[0]);
             else
             {
-                foreach (User entity in entities)
+                foreach (Users entity in entities)
                 {
                     if (entity != null && IsValidValue(entity))
                     {
@@ -86,57 +85,41 @@ namespace WebBanHang.Infrastructre.User_Admin
             await dbContext.user.Where(x => x.Id == id).ExecuteDeleteAsync();
         }
 
-        public async Task DeleteRange(IEnumerable<User> entities)
+        public async Task DeleteRange(IEnumerable<Users> entities)
         {
-            foreach (User entity in entities)
+            foreach (Users entity in entities)
             {
                 await Delete(entity.Id);
             }
         }
 
-        public async Task<IEnumerable<User>> GetAll()
+        public async Task<IEnumerable<Users>> GetAll()
         {
             return await dbContext.user.ToListAsync();
         }
 
-        public async Task<User> GetById(int id)
+        public async Task<Users> GetById(int id)
         {
             return await dbContext.user.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        private async Task<bool> IsPassChangedIllegal(User customer)
+        public async Task Update(Users entity)
         {
-            // Retrive the equivalent customer:
-            User checkCus = await GetByName(customer.UserName);
-            tempCus = checkCus;
-            if (customer.Password == null) return true;
-            else return PasswordManagement.IsValidPassword(customer.Password, checkCus.Password);
-        }
-
-        public async Task Update(User entity)
-        {
-            // This method won't update user's password => Perform a pwd check before update
-            if (entity != null && await IsPassChangedIllegal(entity))
+            if (entity != null)
             {
-                // Truy vet ra Id cua kh
-                int cusID = tempCus!.Id;
-                entity.Id = cusID;
                 dbContext.user.Update(entity);
                 await dbContext.SaveChangesAsync();
             }
-            else throw new InvalidDataException("Is this user empty or their password is illegal changed?");
+            else throw new AggregateException("No valid user to update");
         }
 
-        public async Task UpdateRange(IEnumerable<User> entities)
+        public async Task UpdateRange(IEnumerable<Users> entities)
         {
             int count = entities.Count();
-            foreach (User entity in entities)
+            foreach (Users entity in entities)
             {
-                if (entity != null && !await IsPassChangedIllegal(entity))
+                if (entity != null)
                 {
-                    // Truy vet ra Id cua kh
-                    int cusID = tempCus!.Id;
-                    entity.Id = cusID;
                     dbContext.user.Update(entity);
                     if (batch == count)
                     {
@@ -153,7 +136,7 @@ namespace WebBanHang.Infrastructre.User_Admin
             if (batch < 0) throw new InvalidDataException("Is this user empty or their password is illegal changed?");
         }
 
-        public async Task<User> GetByName(string name)
+        public async Task<Users> GetByName(string name)
         {
             return await dbContext.user.FirstOrDefaultAsync(x => x.UserName == name);
         }

@@ -16,10 +16,10 @@ namespace WebBanHang.Domain.UseCase.Users_Admin
         public bool IsUniqueVerifyToken(string verifyToken);
         public bool IsUniqueResetToken (string resetToken);
         public string HassPassword(string inPwd);
-        public Task<User> checkLogInInfor(LogInModel logIn);
-        public Task<User> GetUserFromRefreshToken(string refreshToken);
-        public Task<User> ValidationVerifyToken(string verifyToken);
-        public Task<User> GetUserByResetToken (string resetToken);
+        public Task<Users> checkLogInInfor(LogInModel logIn);
+        public Task<Users> GetUserFromRefreshToken(string refreshToken);
+        public Task<Users> ValidationVerifyToken(string verifyToken);
+        public Task<Users> GetUserByResetToken (string resetToken);
         // Group of user picture upload & management
     }
 }

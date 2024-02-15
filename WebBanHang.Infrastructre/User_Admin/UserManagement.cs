@@ -23,23 +23,23 @@ namespace WebBanHang.Infrastructre.User_Admin
             this.dbContext = dbContext;
         }
 
-        public async Task<User> checkLogInInfor(LogInModel logIn)
+        public async Task<Users> checkLogInInfor(LogInModel logIn)
         {
-            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.Email == logIn.Email
+            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.Email == logIn.Email
             && PasswordManagement.IsValidPassword(logIn.Password, x.Password));
             return check ?? throw new InvalidDataException("User is not valid");
         }
 
-        public async Task<User> GetUserByResetToken(string resetToken)
+        public async Task<Users> GetUserByResetToken(string resetToken)
         {
-            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.ResetPwdToken == resetToken)
+            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.ResetPwdToken == resetToken)
                 ?? throw new AggregateException("This reset pwd token is not link to any account");
             return check;
         }
 
-        public async Task<User> GetUserFromRefreshToken(string refreshToken)
+        public async Task<Users> GetUserFromRefreshToken(string refreshToken)
         {
-            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.RefreshTokens.Any(x => x.Token == refreshToken)) 
+            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.RefreshTokens.Any(x => x.Token == refreshToken)) 
                 ?? throw new AggregateException("This refresh pwd token is not link to any account");
             return check;
         }
@@ -69,9 +69,9 @@ namespace WebBanHang.Infrastructre.User_Admin
             return PasswordManagement.IsValidPassword(inPwd, dbPwd);
         }
 
-        public async Task<User> ValidationVerifyToken(string verifyToken)
+        public async Task<Users> ValidationVerifyToken(string verifyToken)
         {
-            User? check = await dbContext.user.FirstOrDefaultAsync(x => x.VerifyToken == verifyToken);
+            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.VerifyToken == verifyToken);
             if (check == null) throw new AggregateException("This verify pwd token is not link to any account");
             else
             {

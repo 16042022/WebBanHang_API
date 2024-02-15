@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using WebBanHang.Domain.Common;
 
 namespace WebBanHang.Domain.Entities
 {
-    public class User : BaseEntity
+    public class Users : BaseEntity
     {
         [Required]
         [CustomAnotation("Insertable")]
@@ -28,7 +29,7 @@ namespace WebBanHang.Domain.Entities
         [Required]
         public int RoleID { get; set; }
         [JsonIgnore]
-        public IList<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public IList<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
         public string? VerifyToken { get; set; } = "";
         public DateTime? VerifyDate { get; set; }
         public bool IsVerifed => VerifyDate.HasValue || ResetPwdExpires.HasValue;
@@ -43,5 +44,6 @@ namespace WebBanHang.Domain.Entities
         [Required]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNo { get; set; } = "";
+        public bool OwnedToken(string token) => this.RefreshTokens!.Any(x => x.Token == token);
     }
 }
