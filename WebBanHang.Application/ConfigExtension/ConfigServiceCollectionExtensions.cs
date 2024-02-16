@@ -37,9 +37,9 @@ namespace WebBanHang.Application.ConfigExtension
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             // Other config
-            services.AddTransient<IRepository<Users>, UserInfor>();
-            services.AddTransient(typeof(IRepository<>), typeof(TransactionRepository<>));
-            services.AddTransient<IUserInfor, UserManagement>();
+            services.AddScoped<IRepository<Users>, UserInfor>();
+            services.AddScoped(typeof(IRepository<>), typeof(TransactionRepository<>));
+            services.AddScoped<IUserInfor, UserManagement>();
             services.AddTransient<IAuthenication, AuthenicationProvider>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IUserSerrvice, UserService>();

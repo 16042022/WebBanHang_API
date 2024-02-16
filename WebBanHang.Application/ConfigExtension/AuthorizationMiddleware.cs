@@ -16,12 +16,12 @@ namespace WebBanHang.Application.ConfigExtension
         }
 
         public async Task Invoke(HttpContext context, IRepository<Users> _userRepository,
-            IAuthenication authenication, JsonConfig config) 
+            IAuthenication authenication, IOptions<JsonConfig> config) 
         {
             // Retrive the access token
             string token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last()!;
             // Check token
-            string userResult = authenication.ValidateJwtToken(token, config);
+            string userResult = authenication.ValidateJwtToken(token, config.Value);
             if (userResult != null) 
             {
                 context.Items["User"] = await _userRepository.GetByName(userResult);

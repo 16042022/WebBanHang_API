@@ -15,6 +15,7 @@ namespace WebBanHang.Domain.UseCase.Users_Admin
         public bool IsUniqueRefreshToken(string refreshToken);
         public bool IsUniqueVerifyToken(string verifyToken);
         public bool IsUniqueResetToken (string resetToken);
+        public Task<int> GetNumberOfCustomer();
         public string HassPassword(string inPwd);
         public Task<Users> checkLogInInfor(LogInModel logIn);
         public Task<Users> GetUserFromRefreshToken(string refreshToken);

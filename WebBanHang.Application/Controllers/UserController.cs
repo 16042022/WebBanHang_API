@@ -10,6 +10,7 @@ using WebBanHang.Domain.UseCase.Users_Admin;
 using customAuth = WebBanHang.Infrastructre.Security;
 using WebBanHang.Domain.UseCase.Others;
 using WebBanHang.Domain.Model;
+using System.Security.Principal;
 
 namespace WebBanHang.Application.Controllers
 {
@@ -29,14 +30,14 @@ namespace WebBanHang.Application.Controllers
 
         // Cac API su dung cho quan ly tai khoan
         [customAuth.AllowAnonymous]
-        [HttpPost("authenicate")]
+        [HttpPost("authenicate/")]
         public async Task<IActionResult> Authenicate(LogInModel logIn)
         {
             // Input: LogInModel -> email + password
             var respone = await userSerrvice.Authenticate(logIn, IpAdress(), config);
             SetTokenCookie(respone.JWTRefreshToken!);
             // Output: + A JWT access token (contain basic user infor)
-                     // + A HttpOnly Cookie contain refresh Token
+            // + A HttpOnly Cookie contain refresh Token
             return Ok(respone);
         }
 
@@ -58,7 +59,7 @@ namespace WebBanHang.Application.Controllers
         }
 
         [customAuth.AllowAnonymous]
-        [HttpPost("refresh-token")]
+        [HttpPost("refresh-token/")]
         public async Task<IActionResult> RefreshToken()
         {
             /*

@@ -37,5 +37,8 @@ namespace WebBanHang.Domain.Model
         [Required]
         [Compare("Password")]
         public string ConfirmPassword { get; set; } = "";
+        [Required]
+        [Phone]
+        public string PhoneNo { get; set; } = "";
     }
 }

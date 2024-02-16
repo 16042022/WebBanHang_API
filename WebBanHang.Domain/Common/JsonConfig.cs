@@ -8,13 +8,12 @@ namespace WebBanHang.Domain.Common
 {
     public class JsonConfig
     {
-        private string SecurityKey = "";
+        private readonly string SecurityKey = Environment.GetEnvironmentVariable("SecretKey")!;
         public string Issuer { get; set; } = "";
         public string Audience { get; set; } = "";
         public string SecretKey
         {
             get {  return SecurityKey; }
-            private set { SecurityKey = Environment.GetEnvironmentVariable("SecretKey")!; }
         }
         public int RefreshTokenTTL { get; set; }
     }

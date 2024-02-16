@@ -24,15 +24,15 @@ namespace WebBanHang.Infrastructre.Models
         public DbSet<ReviewHub> review_hub { get; set; }
         public DbSet<Role> roles { get; set; }
         public DbSet<Payment> payments { get; set; }
-        public DbSet<StoredToken> stored_token { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        public AppDbContext(string connectionString) { _connectionString = connectionString; }
+
+        /*public AppDbContext(string connectionString) { _connectionString = connectionString; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySQL(_connectionString);
-        }
+        }*/
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Users>().OwnsMany(p => p.RefreshTokens,

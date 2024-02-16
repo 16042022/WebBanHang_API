@@ -39,14 +39,14 @@ namespace WebBanHang.Infrastructre.Security
 
             string getUniqueToken()
             {
+                string token; bool isUnique;
                 // token is a cryptographically strong random sequence of values
-                var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
                 // Check
-                bool isUnique = dbContext.user.Any(op => op.RefreshTokens.Any(utk => utk.Token == token));
-                if (!isUnique)
+                do
                 {
-                    getUniqueToken();
-                }
+                    token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+                    isUnique = dbContext.user.Any(op => op.RefreshTokens.Any(utk => utk.Token == token));
+                } while (isUnique);
                 return token;
             }
         }
@@ -64,7 +64,7 @@ namespace WebBanHang.Infrastructre.Security
                     new Claim(JwtRegisteredClaimNames.Sub, users.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                Expires = DateTime.UtcNow.AddMinutes(10),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tkey),
                 SecurityAlgorithms.HmacSha256Signature)
             };

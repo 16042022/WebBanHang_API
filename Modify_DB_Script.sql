@@ -75,3 +75,13 @@ ADD COLUMN UserID int not null;
 ALTER TABLE mydb.reviewhub
 ADD FOREIGN KEY fk_reviewhub_UserID (UserID) REFERENCES mydb.user(ID)
 ON UPDATE CASCADE ON DELETE NO ACTION;
+
+ALTER TABLE mydb.user
+DROP COLUMN IsVerifed;
+
+ALTER TABLE mydb.refreshtoken
+RENAME COLUMN CreateByIp TO CreatedByIp;
+ALTER TABLE mydb.refreshtoken
+DROP COLUMN IsExpired;
+ALTER TABLE mydb.refreshtoken
+DROP COLUMN IsRevoked;

@@ -7,7 +7,7 @@ using WebBanHang.Domain.Entities;
 using WebBanHang.Infrastructre.Models;
 using WebBanHang.Infrastructre.User_Admin;
 
-/*IHost host = Host.CreateDefaultBuilder(args)
+IHost host = Host.CreateDefaultBuilder(args)
 .ConfigureAppConfiguration((config) =>
 {
     config.AddEnvironmentVariables();
@@ -16,7 +16,7 @@ using WebBanHang.Infrastructre.User_Admin;
 {
     var conString = Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey");
     services.AddDbContext<AppDbContext>(option => option.UseMySQL(conString!));
-}).Build();*/
+}).Build();
 
 // Tao thu 1 customer
 /*Customer test = new Customer()
@@ -28,7 +28,7 @@ using WebBanHang.Infrastructre.User_Admin;
     CreateAt = DateTime.Now,
 };*/
 
-Users test_user = new Users()
+/*Users test_user = new Users()
 {
     UserName = "linhvu",
     Email = "linhvu@gmail.com",
@@ -40,5 +40,5 @@ Users test_user = new Users()
 
 string connection = Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey")!;
 // await new UserInfor(new AppDbContext(connection)).Add(test_user);
-Users backRes = await new UserInfor(new AppDbContext(connection)).GetById(1);
-Console.WriteLine($"{backRes.UserName} - {backRes.CreateAt}");
+Users backRes = await new UserInfor(new AppDbContext(connection)).GetById(1);*/
+Console.WriteLine($"Hello World!");

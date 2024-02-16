@@ -35,7 +35,7 @@ namespace WebBanHang.Application
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
+                app.UseSwagger(); // More config here...
                 app.UseSwaggerUI();
             }
 

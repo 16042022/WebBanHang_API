@@ -43,19 +43,23 @@ namespace WebBanHang.Domain.Services
         public async Task<AuthenicationRespone> Authenticate(LogInModel model, string ipAddress, JsonConfig config)
         {
             Users check = await userInfor.checkLogInInfor(model);
+            if (check == null || !check.IsVerifed)
+                throw new AggregateException("Log-in infor is not correct");
             // Generate some token
             var AccessToken = authenication.GenerateToken(config, check);
             var RefreshToken = authenication.GenerateRefreshToken(ipAddress);
             check.RefreshTokens.Add(RefreshToken);
             // Remove old items if any
             removeOldRefreshToken(check, config);
+            await userRepo.Update(check);
             // return obj
             AuthenicationRespone respone = new AuthenicationRespone()
             {
                 JWTAccessToken = AccessToken,
                 JWTRefreshToken = RefreshToken.Token,
                 FirstName = check.FirstName,
-                LastName = check.LastName
+                LastName = check.LastName,
+                Email = check.Email
             };
             return respone;
         }
@@ -98,7 +102,8 @@ namespace WebBanHang.Domain.Services
                 JWTAccessToken = AccessToken,
                 JWTRefreshToken = rotateToken.Token,
                 FirstName = customer.FirstName,
-                LastName = customer.LastName
+                LastName = customer.LastName,
+                Email = customer.Email
             };
             return respone;
         }
@@ -169,25 +174,26 @@ namespace WebBanHang.Domain.Services
             return _mapper.Map<AccountRespone>(check);
         }
 
-        public async Task Register(UserRegisterModel model, string origin, bool isEmployee)
+        public async Task Register(UserRegisterModel model, string origin, bool isCustomer)
         {
             Users? check = await userRepo.GetByName(model.Email);
             if (check != null)
             {
-                SendAlreadyRegisterEmail(model.Email, origin);
+                await SendAlreadyRegisterEmail(model.Email, origin);
             }
             // Dang ky thong tin
             // Chuyen doi sang User
-            var list = await userRepo.GetAll(); int priority = list.Count();
-            check!.RoleID = priority == 0? (int)UserRole.Admin: isEmployee? (int)UserRole.Employee : (int)UserRole.Customer;
-            check.VerifyToken = GenerateVerifyToken(check);
+            int priority = await userInfor.GetNumberOfCustomer();
+            int RoleID = priority == 0? (int)UserRole.Admin: isCustomer? (int)UserRole.Customer : (int)UserRole.Employee;
+            var verifyToken = GenerateVerifyToken();
             // Luu user nay
+            check = _mapper.Map<Users>(model); check.RoleID = RoleID; check.VerifyToken = verifyToken;
             await userRepo.Add(check);
             // Gui mail ve dia chi nay
-            SendVerificationEmail(check, origin);
+            await SendVerificationEmail(check, origin);
         }
 
-        private async void SendAlreadyRegisterEmail(string email, string origin)
+        private async Task SendAlreadyRegisterEmail(string email, string origin)
         {
             string message;
             if (!string.IsNullOrEmpty(origin))
@@ -209,7 +215,7 @@ namespace WebBanHang.Domain.Services
             await emailSender.SendMail(context);
         }
 
-        private async void SendVerificationEmail(Users check, string origin)
+        private async Task SendVerificationEmail(Users check, string origin)
         {
             // Tao body message
             string message;
@@ -235,7 +241,7 @@ namespace WebBanHang.Domain.Services
             await emailSender.SendMail(context);
         }
 
-        private string GenerateVerifyToken(Users check)
+        private string GenerateVerifyToken()
         {
             string token; bool isExistance;
             do
@@ -346,7 +352,9 @@ namespace WebBanHang.Domain.Services
             Users? check = await userRepo.GetById(ID);
             if (check != null)
             {
+                var CreatedAt = check.CreateAt;
                 check = _mapper.Map<Users>(editAccountRequest);
+                check.CreateAt = CreatedAt;
                 await userRepo.Update(check);
                 return _mapper.Map<AccountRespone>(check);
             } else throw new AggregateException($"Unable to update account: {ID}");
@@ -358,7 +366,8 @@ namespace WebBanHang.Domain.Services
             Users? check = await userRepo.GetById(AccID);
             if (check != null)
             {
-                await userRepo.Delete(check.Id);
+                check.Status = "Deactived";
+                await userRepo.Update(check);
             }
             else throw new AggregateException($"Unable to detele account: {AccID}");
         }

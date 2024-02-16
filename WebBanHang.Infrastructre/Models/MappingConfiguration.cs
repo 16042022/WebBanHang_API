@@ -17,6 +17,7 @@ namespace WebBanHang.Infrastructre.Models
             { 
                 dest.CreateAt = DateTime.Now;
                 dest.UserName = src.Email.Split("@")[0];
+                dest.Status = "Active";
             });
             CreateMap<CreateRequest, Users>().AfterMap((src, dest) =>
             {
@@ -29,6 +30,7 @@ namespace WebBanHang.Infrastructre.Models
                     "Customer" => 3,
                     _ => throw new ArgumentOutOfRangeException("None of role is match with system role"),
                 };
+                dest.Status = "Active";
             });
             CreateMap<EditAccountRequest, Users>().AfterMap((src, dest) =>
             {
@@ -45,6 +47,7 @@ namespace WebBanHang.Infrastructre.Models
                     "Customer" => 3,
                     _ => dest.RoleID,
                 };
+                dest.Status = "Modified";
             });
             CreateMap<Users, AccountRespone>().ForMember(dest => dest.Role,
                 opt => opt.MapFrom(src => src.RoleID.ToString())).AfterMap((src, dest) =>

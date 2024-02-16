@@ -25,9 +25,17 @@ namespace WebBanHang.Infrastructre.User_Admin
 
         public async Task<Users> checkLogInInfor(LogInModel logIn)
         {
-            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.Email == logIn.Email
-            && PasswordManagement.IsValidPassword(logIn.Password, x.Password));
-            return check ?? throw new InvalidDataException("User is not valid");
+            Users? check = await dbContext.user.FirstOrDefaultAsync(x => x.Email == logIn.Email)?? 
+                throw new InvalidDataException("User's email not match any accounts");
+            // CHeck password
+            bool isOK = PasswordManagement.IsValidPassword(logIn.Password, check.Password);
+            if (!isOK) throw new AggregateException("Password isn't not correct");
+            return check;
+        }
+
+        public async Task<int> GetNumberOfCustomer()
+        {
+            return await dbContext.user.CountAsync();
         }
 
         public async Task<Users> GetUserByResetToken(string resetToken)
