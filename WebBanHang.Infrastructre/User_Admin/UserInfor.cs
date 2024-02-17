@@ -95,7 +95,7 @@ namespace WebBanHang.Infrastructre.User_Admin
 
         public async Task<IEnumerable<Users>> GetAll()
         {
-            return await dbContext.user.ToListAsync();
+            return await dbContext.Set<Users>().ToListAsync();
         }
 
         public async Task<Users> GetById(int id)

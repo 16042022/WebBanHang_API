@@ -15,7 +15,7 @@ namespace WebBanHang.Domain.Entities
         [Required]
         [CustomAnotation("Insertable")]
         public string UserName { get; set; } = "";
-        public string? Avatar { get; set; }
+        public string? Avatar { get; set; } = "";
         [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = "";
@@ -30,6 +30,10 @@ namespace WebBanHang.Domain.Entities
         public int RoleID { get; set; }
         [JsonIgnore]
         public IList<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
+        [JsonIgnore]
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        [JsonIgnore]
+        public ICollection<ReviewProduct> Reviews { get; set; } = new List<ReviewProduct>();
         public string? VerifyToken { get; set; } = "";
         public DateTime? VerifyDate { get; set; }
         public bool IsVerifed => VerifyDate.HasValue || ResetPwdExpires.HasValue;

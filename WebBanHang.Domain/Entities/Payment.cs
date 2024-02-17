@@ -10,5 +10,6 @@ namespace WebBanHang.Domain.Entities
     public class Payment : BaseEntity
     {
         public string PaymentMethod { get; set; } = "";
+        public Order? Order { get; set; }
     }
 }

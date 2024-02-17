@@ -159,7 +159,8 @@ namespace WebBanHang.Domain.Services
             if (isCustomer)
             {
                 var listUser = await userRepo.GetAll();
-                var listCustomer = listUser.Where(x => x.RoleID == 3).Select(x => _mapper.Map<AccountRespone>(x));
+                var listCustomer = listUser.Where(x => x.RoleID == (int)UserRole.Customer)
+                    .Select(x => _mapper.Map<AccountRespone>(x));
                 return listCustomer;
             } else
             {

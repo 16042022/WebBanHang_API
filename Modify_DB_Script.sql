@@ -85,3 +85,29 @@ ALTER TABLE mydb.refreshtoken
 DROP COLUMN IsExpired;
 ALTER TABLE mydb.refreshtoken
 DROP COLUMN IsRevoked;
+
+/*Modify Product-Review relation*/
+ALTER TABLE mydb.reviewhub
+DROP FOREIGN KEY fk_ReviewHub_Products1;
+ALTER TABLE mydb.reviewhub
+DROP FOREIGN KEY reviewhub_ibfk_1;
+ALTER TABLE mydb.review_detail
+DROP FOREIGN KEY fk_ReviewDetail_ReviewHub1;
+
+DROP TABLE mydb.reviewhub;
+
+ALTER TABLE mydb.review_detail
+RENAME TO mydb.reviewproduct;
+ALTER TABLE mydb.reviewproduct
+DROP COLUMN ReviewHubID;
+
+ALTER TABLE mydb.reviewproduct
+ADD COLUMN UserID int not null;
+ALTER TABLE mydb.reviewproduct
+ADD FOREIGN KEY fk_reviewproduct_UserID (UserID) REFERENCES mydb.user(ID)
+ON UPDATE CASCADE ON DELETE NO ACTION;
+ALTER TABLE mydb.reviewproduct
+ADD COLUMN ProductID int not null;
+ALTER TABLE mydb.reviewproduct
+ADD FOREIGN KEY fk_reviewproduct_ProductID (ProductID) REFERENCES mydb.products(ID)
+ON UPDATE CASCADE ON DELETE NO ACTION;

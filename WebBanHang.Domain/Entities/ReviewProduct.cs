@@ -8,9 +8,12 @@ using WebBanHang.Domain.Common;
 
 namespace WebBanHang.Domain.Entities
 {
-    public class ReviewDetail : BaseEntity
+    public class ReviewProduct : BaseEntity
     {
-        public int ReviewHubID { get; set; }
+        public int UserID { get; set; }
+        public Users User { get; set; } = null!;
+        public int ProductID { get; set; }
+        public Product Product { get; set; } = null!;
         public string ContentRated { get; set; } = "";
         [Range(0, 10)]
         public int EvaluatedPoint { get; set; }

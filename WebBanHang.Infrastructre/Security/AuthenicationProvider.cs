@@ -60,7 +60,7 @@ namespace WebBanHang.Infrastructre.Security
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, users.UserName),
+                    new Claim("UserName", users.UserName),
                     new Claim(JwtRegisteredClaimNames.Sub, users.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
@@ -91,7 +91,7 @@ namespace WebBanHang.Infrastructre.Security
             {
                 tokenHandle.ValidateToken(Token, validationParameters, out checkResult);
                 var jwtToken = (JwtSecurityToken)checkResult;
-                return jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value.ToString();
+                return jwtToken.Claims.First(x => x.Type == "UserName").Value.ToString();
             }
             catch
             {

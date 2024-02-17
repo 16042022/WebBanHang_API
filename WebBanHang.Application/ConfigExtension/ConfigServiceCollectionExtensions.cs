@@ -22,6 +22,11 @@ namespace WebBanHang.Application.ConfigExtension
         {
             var key = Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey");
             services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(key!));
+            services.AddDistributedMemoryCache();
+            services.AddSession(x =>
+            {
+                x.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
             services.AddControllers().AddJsonOptions(x =>
             {
                 // serialize enums as strings in api responses (e.g. Role)

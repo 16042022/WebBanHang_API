@@ -13,5 +13,6 @@ namespace WebBanHang.Domain.Entities
         [Required]
         [MaxLength(45)]
         public string TypeName { get; set; } = "";
+        public Product Product { get; set; } = null!;
     }
 }

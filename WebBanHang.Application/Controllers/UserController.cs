@@ -167,6 +167,7 @@ namespace WebBanHang.Application.Controllers
              Input: GET request
             Output: List of all account in system
              */
+            isCustomer = false; // Default for Admin role
             var listUser = await userSerrvice.GetAll(isCustomer);
             return Ok(listUser);
         }

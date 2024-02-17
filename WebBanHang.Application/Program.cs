@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using WebBanHang.Application.ConfigExtension;
 using WebBanHang.Domain;
@@ -20,7 +20,8 @@ namespace WebBanHang.Application
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.ConfigSwaggerGroup();
+            // builder.Services.AddSwaggerGen();
 
             builder.Services.ConfigDependencyGroup();
 
@@ -32,11 +33,11 @@ namespace WebBanHang.Application
             builder.Services.Configure<MailPortSetting>(MailPort);
 
             var app = builder.Build();
+            app.UseSession();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger(); // More config here...
-                app.UseSwaggerUI();
+                app.AddConfigSwagger();
             }
 
             app.UseHttpsRedirection();
