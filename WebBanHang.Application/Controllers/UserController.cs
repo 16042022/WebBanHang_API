@@ -38,6 +38,7 @@ namespace WebBanHang.Application.Controllers
             SetTokenCookie(respone.JWTRefreshToken!);
             // Output: + A JWT access token (contain basic user infor)
             // + A HttpOnly Cookie contain refresh Token
+            // Plus: Add userID/ UserName into this current session => For shopping cart feature
             return Ok(respone);
         }
 
@@ -72,6 +73,7 @@ namespace WebBanHang.Application.Controllers
             {
                 var identity = await userSerrvice.RefreshToken(refreshToken, IpAdress());
                 SetTokenCookie(identity.JWTRefreshToken!);
+                // Plus: Add userID/ UserName into this current session => For shopping cart feature
                 return Ok(identity);
             }
             return StatusCode(StatusCodes.Status500InternalServerError);
