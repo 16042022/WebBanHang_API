@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Common;
-using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
-using WebBanHang.Domain.Model;
+using WebBanHang.Domain.Model.Account;
 
 namespace WebBanHang.Domain.UseCase.Others
 {

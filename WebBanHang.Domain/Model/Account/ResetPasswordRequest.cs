@@ -5,16 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebBanHang.Domain.DTO
+namespace WebBanHang.Domain.Model.Account
 {
-    public class LogInModel
+    public class ResetPasswordRequest
     {
-        [Required]
-        public string Email { get; set; } = "";
         [Required]
         [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [RegularExpression(@"^((?=.*[a-z])(?=.*[A-Z])(?=.*\d)).+$")]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        public string Password { get; set; } = ""; // New password
+        [Required]
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; } = "";
+        [Required]
+        public string Token { get; set; } = "";
     }
 }

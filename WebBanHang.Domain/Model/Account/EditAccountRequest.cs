@@ -8,7 +8,7 @@ using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 
-namespace WebBanHang.Domain.Model
+namespace WebBanHang.Domain.Model.Account
 {
     public class EditAccountRequest
     {

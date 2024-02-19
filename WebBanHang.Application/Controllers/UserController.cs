@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using WebBanHang.Domain;
 using WebBanHang.Domain.Common;
-using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 using WebBanHang.Domain.UseCase.Users_Admin;
 using customAuth = WebBanHang.Infrastructre.Security;
 using WebBanHang.Domain.UseCase.Others;
-using WebBanHang.Domain.Model;
 using System.Security.Principal;
+using WebBanHang.Domain.Model.Account;
 
 namespace WebBanHang.Application.Controllers
 {
@@ -38,6 +37,8 @@ namespace WebBanHang.Application.Controllers
             SetTokenCookie(respone.JWTRefreshToken!);
             // Output: + A JWT access token (contain basic user infor)
             // + A HttpOnly Cookie contain refresh Token
+            ISession session = HttpContext.Session;
+            session.SetString("userName", respone.Email);
             return Ok(respone);
         }
 
@@ -72,6 +73,8 @@ namespace WebBanHang.Application.Controllers
             {
                 var identity = await userSerrvice.RefreshToken(refreshToken, IpAdress());
                 SetTokenCookie(identity.JWTRefreshToken!);
+                ISession session = HttpContext.Session;
+                session.SetString("userName", identity.Email);
                 return Ok(identity);
             }
             return StatusCode(StatusCodes.Status500InternalServerError);

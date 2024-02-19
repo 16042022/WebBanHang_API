@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
-using WebBanHang.Domain.Model;
+using WebBanHang.Domain.Model.Account;
+using WebBanHang.Domain.Model.Cart;
 
 namespace WebBanHang.Infrastructre.Models
 {
@@ -56,6 +56,10 @@ namespace WebBanHang.Infrastructre.Models
                     else if (dest.Role == "2") dest.Role = "Employee";
                     else dest.Role = "Customer";
                 });
+            CreateMap<Product, ProductDtos>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProductName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.ProductDescription));
+
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Entities;
 
-namespace WebBanHang.Domain.Model
+namespace WebBanHang.Domain.Model.Account
 {
     public class AuthenicationRespone
     {

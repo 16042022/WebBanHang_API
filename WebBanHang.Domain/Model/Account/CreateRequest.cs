@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 
-namespace WebBanHang.Domain.Model
+namespace WebBanHang.Domain.Model.Account
 {
     public class CreateRequest
     {

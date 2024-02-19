@@ -9,10 +9,9 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Common;
-using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
-using WebBanHang.Domain.Model;
+using WebBanHang.Domain.Model.Account;
 using WebBanHang.Domain.UseCase.Others;
 using WebBanHang.Domain.UseCase.Users_Admin;
 
