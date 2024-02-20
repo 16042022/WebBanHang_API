@@ -19,5 +19,10 @@ namespace WebBanHang.Domain.Model.Cart
         }
         public int Quantities { get; set; } = 1;
         public ProductDtos? Product { get; set; }
+
+        public string GetOriginEmail()
+        {
+            return Email;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,9 @@ namespace WebBanHang.Infrastructre.Models
                 .HasOne(x => x.ProductType).WithOne(y => y.Product).HasForeignKey<Product>(kf => kf.CategoryID).IsRequired();
             modelBuilder.Entity<Product>()
                 .HasMany(x => x.ReviewProduct).WithOne(y => y.Product).HasForeignKey(fk => fk.ProductID).IsRequired();
+            // Config for Order table
+            modelBuilder.Entity<Order>()
+                .Property(x => x.Id).ValueGeneratedOnAdd();
         }
     }
 }

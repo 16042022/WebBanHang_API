@@ -12,5 +12,7 @@ namespace WebBanHang.Domain.Model.Cart
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public float Price { get; set; }
+        public float Discount { get; set; } = 0;
+        public int Stock {  get; set; }
     }
 }

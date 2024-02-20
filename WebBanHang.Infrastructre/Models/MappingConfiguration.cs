@@ -58,7 +58,31 @@ namespace WebBanHang.Infrastructre.Models
                 });
             CreateMap<Product, ProductDtos>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProductName))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.ProductDescription));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.ProductDescription))
+                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
+                .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock));
+            CreateMap<AddingProductRequest, Product>().AfterMap((src, dest) =>
+            {
+                dest.ProductName = src.Name;
+                dest.ProductDescription = src.Description;
+                dest.Price = src.Price; dest.Discount = src.Discount;
+                dest.Stock = src.Stock;
+                dest.StatusID = src.Status switch
+                {
+                    "Available" => 1,
+                    "Out_of_stock" => 2,
+                    _ => throw new ArgumentOutOfRangeException("Out of range product status")
+                };
+                dest.CategoryID = src.Category switch
+                {
+                    "Dry_food" => 1,
+                    "Watery_food" => 2,
+                    "Refined_food" => 3,
+                    "Processed_food" => 4,
+                    "Freeze_food" => 5,
+                    _=> throw new ArgumentOutOfRangeException("Out of range product category")
+                };
+            });
 
         }
     }

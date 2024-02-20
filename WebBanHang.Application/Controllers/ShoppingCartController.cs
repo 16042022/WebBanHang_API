@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text.Json;
 using WebBanHang.Domain;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Model.Cart;
+using WebBanHang.Domain.UseCase.Products;
 
 namespace WebBanHang.Application.Controllers
 {
@@ -13,29 +15,34 @@ namespace WebBanHang.Application.Controllers
     public class ShoppingCartController : ControllerBase
     {
         private IRepository<Product> productRepo;
-        private ICollection<CartItem> cartItems;
         private IMapper _mapper;
+        private IOrderCaculate orderCaculate;
         private const string CARTKEY = "cart";
         private ISession session;
         public ShoppingCartController(IRepository<Product> repo, 
-            IMapper mapper) 
+            IMapper mapper, IOrderCaculate caculate) 
         {
             _mapper = mapper;
-            cartItems = new List<CartItem>();
             productRepo = repo;
             session = HttpContext.Session;
+            orderCaculate = caculate;
+        }
+
+        private List<CartItem> GetCartItems()
+        {
+            var result = session.GetString(CARTKEY);
+            if (result != null)
+            {
+                return JsonSerializer.Deserialize<List<CartItem>>(result)!;
+            }
+            return new List<CartItem>();
         }
 
         // Tra ve list cart
         [HttpGet("getListCart")]
         public IActionResult GetListCart() 
         {
-            var result = session.GetString(CARTKEY);
-            if (result != null)
-            {
-                return Ok(JsonSerializer.Deserialize<List<CartItem>>(result));
-            }
-            return Ok(cartItems);
+            return Ok(GetCartItems());
         }
 
         // Them hang vao gio hang
@@ -48,56 +55,61 @@ namespace WebBanHang.Application.Controllers
             // Add into cart session (list of cart)
             var model = _mapper.Map<ProductDtos>(items);
             var userIdentity = session.GetString("userName");
-            var cart = new CartItem()
-            {
-                UserName = userIdentity!, Product = model
-            };
             // Save into session
-            cartItems.Add(cart); // For further search task
-            SaveToSession(cart);
-            return Ok(cart);
+            var listItem = GetCartItems();
+            var cartItem = listItem.Find(x => x.Product!.Id == ID);
+            if (cartItem != null)
+            {
+                if (cartItem.Quantities > cartItem.Product!.Stock) return BadRequest(new { message = "Out of stock product" });
+                else cartItem.Quantities++;
+            }
+            else listItem.Add(new CartItem() { UserName = userIdentity!, Product = model });
+            SaveToSession(listItem);
+            return Ok();
         }
 
-        private void SaveToSession(CartItem cart)
+        private void SaveToSession(List<CartItem> ls)
         {
-            var jsonObj = JsonSerializer.Serialize(cart);
+            var jsonObj = JsonSerializer.Serialize(ls);
             session.SetString(CARTKEY, jsonObj);
         }
 
         [HttpPut("updateCart")]
         public IActionResult UpdateCart([FromQuery] int ID, [FromQuery] int quantity) 
         {
-            // Tim trong Session product t/ung
-            CartItem cartItem = FindElement(ID);
-            if (cartItem == null) return BadRequest(new { message = "Not found" });
-            // Cap nhat
-            UpdateIntoCarts(cartItem, quantity);
-            return Ok();    
-        }
-
-        private void UpdateIntoCarts(CartItem cartItem, int quantity)
-        {
-            cartItems.Remove(cartItem);
-            cartItem.Quantities = quantity;
-            SaveToSession(cartItem); cartItems.Add(cartItem);
-        }
-
-        private CartItem FindElement(int iD)
-        {
-            return cartItems.Where(x => x.Product!.Id == iD).Single();
+            var listItem = GetCartItems();
+            var elem = listItem.Find(x => x.Product!.Id == ID);
+            if (elem != null) 
+            {
+                if (quantity > 0 && quantity <= elem.Product!.Stock)
+                    elem.Quantities = quantity; 
+                else return BadRequest(new { message = "Out of stock product" });
+            }
+            SaveToSession(listItem);
+            return Ok(new {message = "Update shopping cart succesfful"});    
         }
 
         [HttpDelete("deleteCart/{productID}")]
         public IActionResult RemoveCart([FromQuery] int ID)
         {
-            return Ok();
+            // input: ProductID
+            var items = GetCartItems();
+            var itemToDel = items.Find(x => x.Product!.Id == ID);
+            if (itemToDel != null)
+            {
+                items.Remove(itemToDel);
+                return Ok(new { message = "Remove cart items done" });
+            }
+            return BadRequest(new { message = "Invalid product code" });
         }
 
         [HttpGet("checkOut")]
-        public IActionResult CheckOut()
+        public async Task<IActionResult> CheckOut()
         {
             // From list cart => order detail
-            return Ok();
+            var finalList = GetCartItems();
+            await orderCaculate.AddNewOrder(finalList);
+            return Ok(new {message = "Order has done"});
         }
     }
 }

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebBanHang.Domain.UseCase.Products
+namespace WebBanHang.Domain.Enums
 {
-    public interface IProductPicture
+    public enum ProductStatus
     {
+        Available = 1,
+        Out_of_stock = 2
     }
 }
