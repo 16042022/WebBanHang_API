@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +19,6 @@ namespace WebBanHang.Domain
         Task AddRange (IEnumerable<T> entities);
         Task UpdateRange (IEnumerable<T> entities);
         Task DeleteRange (IEnumerable<T> entities);
+        DbSet<T> DbSet();
     }
 }

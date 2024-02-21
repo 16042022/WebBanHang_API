@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebBanHang.Domain.Enums
+namespace WebBanHang.Domain.Common
 {
-    public enum ProductStatus
+    public class PagePagination
     {
-        Available = 1,
-        Out_of_stock = 2
+
     }
 }

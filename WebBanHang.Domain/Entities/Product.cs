@@ -18,6 +18,7 @@ namespace WebBanHang.Domain.Entities
         public float Discount { get; set; }
         public int NumOfViews { get; set; }
         public int Stock { get; set; }
+        public string Unit { get; set; } = ""; // DOn vi tinh san pham
         public int StatusID { get; set; }
         public ProductStatus Status { get; set; } = null!;
         public int CategoryID { get; set; }

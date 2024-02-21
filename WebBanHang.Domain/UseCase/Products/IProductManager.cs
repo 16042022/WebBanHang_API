@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Model.Cart;
+using WebBanHang.Domain.Model.Product;
 
 namespace WebBanHang.Domain.UseCase.Products
 {
@@ -12,10 +13,10 @@ namespace WebBanHang.Domain.UseCase.Products
         // Add san pham
         public Task AddProduct(AddingProductRequest product);
         // Update san pham
-        public Task UpdateProduct(ProductDtos product);
+        public Task UpdateProduct(UpdateProductRequest product);
         // Xoa san pham (soft delete)
         public Task DeleteProduct(int ID);
-        public Task GetAllProduct();
+        public Task<IEnumerable<ProductDtos>> GetAllProduct();
         // Up anh san pham len cloud => luu chuoi ket noi vao db
     }
 }

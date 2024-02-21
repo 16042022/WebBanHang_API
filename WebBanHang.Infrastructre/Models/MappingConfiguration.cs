@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Model.Account;
 using WebBanHang.Domain.Model.Cart;
+using WebBanHang.Domain.Model.Product;
 
 namespace WebBanHang.Infrastructre.Models
 {
@@ -83,7 +84,21 @@ namespace WebBanHang.Infrastructre.Models
                     _=> throw new ArgumentOutOfRangeException("Out of range product category")
                 };
             });
-
+            CreateMap<UpdateProductRequest, Product>().AfterMap((src, dest) =>
+            {
+                dest.ProductName = src.Name;
+                dest.Price = src.Price;
+                dest.Discount = src.Discount;
+                dest.ProductDescription = src.Description;
+                dest.Stock = src.Stock;
+                dest.StatusID = src.Status switch
+                {
+                    "Available" => 1,
+                    "Out_of_stock" => 2,
+                    _ => throw new ArgumentOutOfRangeException("Out of range product status")
+                };
+                dest.UpdateAt = DateTime.Now;
+            });
         }
     }
 }

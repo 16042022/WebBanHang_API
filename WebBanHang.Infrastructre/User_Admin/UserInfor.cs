@@ -15,6 +15,7 @@ namespace WebBanHang.Infrastructre.User_Admin
     public class UserInfor : IRepository<Users>
     {
         private AppDbContext dbContext;
+        private DbSet<Users>? _entity;
         private int batch = 0;
 
         private static bool IsValidValue(Users acc)
@@ -140,5 +141,22 @@ namespace WebBanHang.Infrastructre.User_Admin
         {
             return await dbContext.user.FirstOrDefaultAsync(x => x.UserName == name);
         }
+
+        #region Helpers
+        private DbSet<Users> Entities
+        {
+            get
+            {
+                _entity ??= dbContext.Set<Users>();
+
+                return _entity;
+            }
+        }
+
+        public DbSet<Users> DbSet()
+        {
+            return Entities;
+        }
+        #endregion
     }
 }

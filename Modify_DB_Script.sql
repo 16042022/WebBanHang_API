@@ -111,3 +111,6 @@ ADD COLUMN ProductID int not null;
 ALTER TABLE mydb.reviewproduct
 ADD FOREIGN KEY fk_reviewproduct_ProductID (ProductID) REFERENCES mydb.products(ID)
 ON UPDATE CASCADE ON DELETE NO ACTION;
+
+ALTER TABLE mydb.products
+ADD COLUMN Unit varchar(50) AFTER Stock;
