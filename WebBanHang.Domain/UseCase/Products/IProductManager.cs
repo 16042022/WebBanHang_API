@@ -17,6 +17,7 @@ namespace WebBanHang.Domain.UseCase.Products
         // Xoa san pham (soft delete)
         public Task DeleteProduct(int ID);
         public Task<IEnumerable<ProductDtos>> GetAllProduct();
+        public Task<ProductDtos> GetProduct(int ID);
         // Up anh san pham len cloud => luu chuoi ket noi vao db
     }
 }

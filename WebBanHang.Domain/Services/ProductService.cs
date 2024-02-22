@@ -66,5 +66,11 @@ namespace WebBanHang.Domain.Services
             check = mapper.Map<Product>(product);
             await productRepo.Update(check);
         }
+
+        public async Task<ProductDtos> GetProduct(int ID)
+        {
+            var item = await productRepo.GetById(ID);
+            return mapper.Map<ProductDtos>(item);
+        }
     }
 }

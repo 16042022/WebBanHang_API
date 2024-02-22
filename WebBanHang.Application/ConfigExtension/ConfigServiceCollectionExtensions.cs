@@ -48,6 +48,7 @@ namespace WebBanHang.Application.ConfigExtension
             services.AddTransient<IAuthenication, AuthenicationProvider>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IUserSerrvice, UserService>();
+            services.AddPagination();
             return services;
         }
     }
