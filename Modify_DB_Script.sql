@@ -114,3 +114,100 @@ ON UPDATE CASCADE ON DELETE NO ACTION;
 
 ALTER TABLE mydb.products
 ADD COLUMN Unit varchar(50) AFTER Stock;
+
+/*Add tables to online payment process*/
+DROP TABLE IF EXISTS mydb.merchant;
+CREATE TABLE mydb.merchant
+(
+	ID varchar(50) PRIMARY KEY,
+    MerchantName varchar(255),
+    MerchantWebLink varchar(255),
+    MerchantIpnUrl varchar(255),
+    MerchantReturnUrl varchar(255),
+    SecretKey varchar(255),
+    IsActive bool
+);
+
+DROP TABLE IF EXISTS mydb.payment_destination;
+CREATE TABLE mydb.payment_destination
+(
+	ID varchar(50) PRIMARY KEY,
+    DesName varchar(255),
+    DesShortName varchar(50),
+    DesParentID varchar(50),
+    DesLogo varchar(50),
+    SortIndex int,
+    IsActive bool
+);
+
+DROP TABLE IF EXISTS mydb.online_payment;
+CREATE TABLE mydb.online_payment
+(
+	ID varchar(50) PRIMARY KEY,
+    MerchantID varchar(50) NOT NULL,
+    PaymentContent varchar(500),
+    PaymentConcurency varchar(10),
+    PaymentRefID varchar(50),
+    RequiredAmount int,
+    PaymentLanguage varchar(10),
+    PaymentDate datetime,
+    ExpireDate datetime,
+    PaymentStatus varchar(255),
+    PaymentLastMessage varchar(255),
+    PaymentDestinationID varchar(50),
+    PaidAmount int,
+    FOREIGN KEY fk_merchant_OnlinePayment (MerchantID) 
+    REFERENCES mydb.merchant (ID) ON DELETE NO ACTION ON UPDATE CASCADE,
+    FOREIGN KEY fk_merchant_PayDes (PaymentDestinationID)
+    REFERENCES mydb.payment_destination (ID) ON UPDATE CASCADE ON DELETE NO ACTION
+);
+
+DROP TABLE IF EXISTS mydb.payment_transaction;
+CREATE TABLE mydb.payment_transaction
+(
+	ID varchar(50) PRIMARY KEY,
+    TranAmount int,
+    TranMessage varchar(500),
+    TranPayload varchar(255),
+    TranStatus varchar(45),
+    TranDate datetime,
+    TranRefID varchar(50),
+    OnlinePaymentID varchar(50) NOT NULL,
+    FOREIGN KEY fk_transaction_Payment (OnlinePaymentID)
+    REFERENCES mydb.online_payment (ID) ON UPDATE CASCADE ON DELETE NO ACTION
+);
+
+DROP TABLE IF EXISTS mydb.payment_notification;
+CREATE TABLE mydb.payment_notification
+(
+	ID varchar(50) PRIMARY KEY,
+    PaymentRefId varchar(50),
+	NotiDate datetime,
+	NotiContent varchar(255),
+	NotiAmount int,
+	NotiMessage varchar(550),
+	NotiSignature varchar(255),
+	NotiPaymentId varchar(50),
+	MerchantId varchar(50),
+	NotiStatus varchar(50),
+	NotiResDate datetime,
+	NotiResMessage varchar(255),
+	NotiResHttpCode varchar(255),
+    FOREIGN KEY fk_PayNoti_merchant (MerchantID)
+    REFERENCES mydb.merchant (ID) ON UPDATE CASCADE ON DELETE NO ACTION
+);
+
+DROP TABLE IF EXISTS mydb.payemt_signature;
+CREATE TABLE mydb.payment_signature
+(
+	ID varchar(50) PRIMARY KEY,
+    PaymentId varchar(50) NOT NULL,
+	SignValue varchar(255),
+	SignAlgo varchar(50),
+	SignOwn varchar(50),
+	SignDate datetime,
+	IsValid bool,
+    FOREIGN KEY fk_signature_Payment (PaymentID) 
+    REFERENCES mydb.online_payment (ID) ON UPDATE CASCADE ON DELETE NO ACTION
+);
+

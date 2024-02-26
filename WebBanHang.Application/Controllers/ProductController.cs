@@ -12,7 +12,7 @@ namespace WebBanHang.Application.Controllers
     [cusAuth.Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController : BaseController
     {
         private IPaginationService _pagerService;
         private IProductManager product;

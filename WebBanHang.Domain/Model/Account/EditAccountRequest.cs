@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebBanHang.Domain.DTO;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Enums;
 

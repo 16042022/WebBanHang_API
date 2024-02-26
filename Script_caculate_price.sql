@@ -114,4 +114,4 @@ CREATE TRIGGER after_update_quantities
     END$$
 DELIMITER ;
 
--- Trigger when a customer is added, they are automatically added into user table --
+

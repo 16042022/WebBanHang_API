@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebBanHang.Domain.Common;
+using WebBanHang.Domain.Entities.Product;
 
 namespace WebBanHang.Domain.Entities
 {
@@ -48,6 +49,6 @@ namespace WebBanHang.Domain.Entities
         [Required]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNo { get; set; } = "";
-        public bool OwnedToken(string token) => this.RefreshTokens!.Any(x => x.Token == token);
+        public bool OwnedToken(string token) => RefreshTokens!.Any(x => x.Token == token);
     }
 }
