@@ -7,7 +7,7 @@ using WebBanHang.Domain.Common;
 using WebBanHang.Domain.Entities;
 using WebBanHang.Domain.Model.Account;
 
-namespace WebBanHang.Domain.UseCase.Others
+namespace WebBanHang.Domain.UseCase.Users_Admin
 {
     public interface IUserSerrvice
     {

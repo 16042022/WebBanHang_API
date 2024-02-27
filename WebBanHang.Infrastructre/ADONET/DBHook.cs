@@ -4,7 +4,8 @@ namespace WebBanHang.Infrastructre.ADONET
 {
     public class MyConnectionKey
     {
-        public static string ConnectionKey => Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey")!;
+        public static string ConnectionKey 
+            => Environment.GetEnvironmentVariable("MYSQLCNNSTR_cnnKey")!;
     }
 
     public class DBHook : IDisposable
